@@ -1,36 +1,27 @@
-# API 設計
+# API 設計（PoC 版）
 
 ## 概要
 
-この API は、ReactNative の iOS アプリと Firebase のサービス間の通信を定義します。Firebase Authentication 及び Firebase Firestore を使用した読書進捗管理アプリのための API です。
+この API 設計は、React Native の iOS アプリのためのローカルデータ操作関数を定義します。PoC 版では Firebase などのクラウドサービスは使用せず、AsyncStorage を用いたシンプルな構成とします。
 
-## Firebase Authentication API
-
-### 認証関連
-
-- `createUserWithEmailAndPassword(email, password)` - ユーザー登録
-- `signInWithEmailAndPassword(email, password)` - ログイン
-- `signOut()` - ログアウト
-- `getCurrentUser()` - 現在のユーザー取得
-- `updateUserProfile(displayName, photoURL)` - ユーザープロファイル更新
-- `sendPasswordResetEmail(email)` - パスワードリセットメール送信
-- `deleteUser()` - ユーザー削除
-
-## Firestore API
+## データアクセス API
 
 ### 書籍関連
 
-- `addBook(bookData)` - 書籍を追加
-- `getBooks(userId)` - ユーザーの全書籍を取得
-- `getBook(bookId)` - 特定の書籍を取得
-- `updateBook(bookId, bookData)` - 書籍情報を更新
-- `updateProgress(bookId, currentPage)` - 読書進捗を更新
-- `deleteBook(bookId)` - 書籍を削除
+- `saveBook(book)` - 書籍を追加・更新
+- `getAllBooks()` - すべての書籍を取得
+- `getBookById(id)` - 特定の書籍を ID で取得
+- `deleteBook(id)` - 書籍を削除
+
+### 進捗管理
+
+- `updateBookProgress(id, currentPage)` - 読書進捗を更新
+- `calculateProgress(currentPage, totalPages)` - 進捗率（％）を計算
 
 ### 統計関連
 
-- `getReadingStats(userId)` - 読書統計を取得
-- `getDailyReadingLog(userId, startDate, endDate)` - 日別の読書ログを取得
+- `getReadingStats()` - 読書統計を取得（総読了ページ数、完読冊数など）
+- `getTotalPagesRead()` - 全書籍の読了ページ合計を計算
 
 ## リクエストとレスポンス例
 

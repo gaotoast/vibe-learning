@@ -1,53 +1,73 @@
-# Database 設計
+# データモデル設計（PoC 版）
 
 ## 概要
 
-このデータベース設計は、Firebase Firestore を使用した読書進捗管理アプリ向けの NoSQL データモデルを定義します。Firestore は柔軟なスキーマを持つドキュメント指向の NoSQL データベースであるため、伝統的なリレーショナルデータベースとは異なるアプローチを採用しています。
+このデータモデル設計は、ReactNative アプリのローカルデータ構造を定義します。PoC 版では、AsyncStorage を使用したシンプルな JSON データモデルを採用します。
 
-## コレクション構造
+## データ構造
 
-### users コレクション
+### 書籍オブジェクト
 
-| フィールド名 | データ型  | 説明                                              |
-| ------------ | --------- | ------------------------------------------------- |
-| uid          | String    | Firebase Authentication から生成されたユーザー ID |
-| displayName  | String    | ユーザー表示名                                    |
-| email        | String    | メールアドレス                                    |
-| photoURL     | String    | プロフィール画像 URL（オプション）                |
-| createdAt    | Timestamp | アカウント作成日時                                |
-| lastLoginAt  | Timestamp | 最終ログイン日時                                  |
-| settings     | Map       | ユーザー設定情報                                  |
+| フィールド名   | データ型   | 説明                    |
+| -------------- | ---------- | ----------------------- |
+| id             | String     | 書籍 ID（ランダム生成） |
+| title          | String     | 書籍タイトル            |
+| author         | String     | 著者名                  |
+| totalPages     | Number     | 総ページ数              |
+| currentPage    | Number     | 現在の読了ページ数      |
+| progress       | Number     | 読了率（％）            |
+| coverImage     | String     | 表紙画像（オプション）  |
+| startDate      | ISO String | 読書開始日              |
+| lastUpdateDate | ISO String | 最終更新日              |
+| memo           | String     | メモ（オプション）      |
 
-### books コレクション
+### 統計データオブジェクト
 
-| フィールド名   | データ型  | 説明                         |
-| -------------- | --------- | ---------------------------- |
-| id             | String    | 書籍 ID（自動生成）          |
-| userId         | String    | 所有ユーザーの ID            |
-| title          | String    | 書籍タイトル                 |
-| author         | String    | 著者名                       |
-| totalPages     | Number    | 総ページ数                   |
-| currentPage    | Number    | 現在の読了ページ数           |
-| progress       | Number    | 読了率（％）                 |
-| coverImage     | String    | 表紙画像 URL（オプション）   |
-| startDate      | Timestamp | 読書開始日                   |
-| lastUpdateDate | Timestamp | 最終更新日                   |
-| completionDate | Timestamp | 完読日（オプション）         |
-| memo           | String    | メモ・コメント（オプション） |
+| フィールド名    | データ型 | 説明             |
+| --------------- | -------- | ---------------- |
+| totalBooks      | Number   | 登録書籍総数     |
+| completedBooks  | Number   | 完読した書籍数   |
+| totalPagesRead  | Number   | 総読了ページ数   |
+| averageProgress | Number   | 平均進捗率（％） |
 
-### reading_logs サブコレクション（books 内）
+## データ保存方法
 
-| フィールド名 | データ型  | 説明                         |
-| ------------ | --------- | ---------------------------- |
-| id           | String    | ログ ID（自動生成）          |
-| bookId       | String    | 対象書籍 ID                  |
-| timestamp    | Timestamp | 記録日時                     |
-| previousPage | Number    | 以前のページ                 |
-| currentPage  | Number    | 更新後のページ               |
-| pagesRead    | Number    | 読了ページ数                 |
-| readingTime  | Number    | 読書時間（分）（オプション） |
+AsyncStorage を使用して、以下の形式でローカル保存します：
 
-### reading_stats コレクション
+### キー構造
+
+- `@BookProgress:books` - 書籍データの配列
+- `@BookProgress:stats` - 統計データ
+
+## サンプルデータ
+
+### 書籍データ例
+
+```json
+[
+  {
+    "id": "book-1",
+    "title": "プログラミング言語の基礎",
+    "author": "山田太郎",
+    "totalPages": 450,
+    "currentPage": 120,
+    "progress": 26.67,
+    "startDate": "2025-05-20T10:30:00.000Z",
+    "lastUpdateDate": "2025-05-26T15:45:00.000Z",
+    "memo": "第5章から難しくなってきた"
+  },
+  {
+    "id": "book-2",
+    "title": "React Nativeアプリ開発入門",
+    "author": "鈴木花子",
+    "totalPages": 380,
+    "currentPage": 42,
+    "progress": 11.05,
+    "startDate": "2025-05-22T08:15:00.000Z",
+    "lastUpdateDate": "2025-05-25T20:30:00.000Z"
+  }
+]
+```
 
 | フィールド名     | データ型 | 説明                                   |
 | ---------------- | -------- | -------------------------------------- |
