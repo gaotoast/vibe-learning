@@ -12,10 +12,11 @@ BookProgress（仮）- ReactNative 版読書進捗管理アプリ
 
 ### 主要機能（PoC 版）
 
-- 書籍の登録と進捗管理
+- ユーザー認証（Firebase Authentication）
+- 書籍の登録と進捗管理（Firestore）
 - 視覚的なプログレスバーによる進捗表示
 - 累計読了ページ数の表示
-- ローカルデータ保存
+- クラウドデータ同期とオフラインサポート
 
 ## 2. 開発スケジュール（6 月 13 日締切）
 
@@ -23,8 +24,9 @@ BookProgress（仮）- ReactNative 版読書進捗管理アプリ
 
 - 開発環境のセットアップ
 - ReactNative/Expo の基礎学習
+- Firebase プロジェクト作成と接続設定
 - 画面構成の決定
-- データモデル設計
+- Firestore データモデル設計
 
 ### 週 2: UI 実装・基本機能（5 月 29 日〜6 月 4 日）
 
@@ -60,10 +62,11 @@ BookProgress（仮）- ReactNative 版読書進捗管理アプリ
 
 - [3-4 日目] アプリ構造とデータモデル設計
 
-  - [ ] 必要な画面の洗い出し
+  - [ ] 必要な画面の洗い出し（認証画面を含む）
   - [ ] ナビゲーション構造の決定
-  - [ ] 書籍データモデルの設計
-  - [ ] AsyncStorage の学習（ローカルデータ保存）
+  - [ ] Firebase プロジェクト作成とセットアップ
+  - [ ] Firestore データモデル設計
+  - [ ] Firebase Authentication 設定
 
 - [5-7 日目] 基本的な UI コンポーネント実装
   - [ ] タブナビゲーションの実装
@@ -156,8 +159,10 @@ BookProgress（仮）- ReactNative 版読書進捗管理アプリ
 3. 必要なライブラリのインストール
 
    ```powershell
-   npm install @react-navigation/native @react-navigation/bottom-tabs
+   npm install @react-navigation/native @react-navigation/bottom-tabs @react-navigation/stack
    npm install @react-native-async-storage/async-storage
+   npm install firebase
+   npm install react-native-firebase
    npx expo install react-native-screens react-native-safe-area-context
    ```
 
@@ -179,25 +184,85 @@ BookProgress（仮）- ReactNative 版読書進捗管理アプリ
 - [Expo 公式ドキュメント](https://docs.expo.dev/)
 - [React Navigation 入門](https://reactnavigation.org/docs/getting-started)
 
+### Firebase 学習
+
+- [Firebase 公式ドキュメント](https://firebase.google.com/docs)
+- [Firestore データモデル設計](https://firebase.google.com/docs/firestore/manage-data/structure-data)
+- [Firebase Authentication](https://firebase.google.com/docs/auth)
+
 ### チュートリアル
 
 - [YouTube: React Native for Beginners](https://www.youtube.com/watch?v=0-S5a0eXPoc)
+- [Firebase + React Native チュートリアル](https://firebase.google.com/docs/web/setup)
 - [Expo Snack: オンラインエディタ](https://snack.expo.dev/)
 - [AsyncStorage 利用方法](https://react-native-async-storage.github.io/async-storage/docs/usage)
 
 ### サンプルコード
 
+**Firebase 初期化**
+
+```javascript
+// src/services/firebase.js
+import { initializeApp } from "firebase/app";
+import { getAuth } from "firebase/auth";
+import { getFirestore } from "firebase/firestore";
+
+const firebaseConfig = {
+  apiKey: "XXXXXXXXXXXXXXXXXXXXXXXXX",
+  authDomain: "bookprogress-app.firebaseapp.com",
+  projectId: "bookprogress-app",
+  storageBucket: "bookprogress-app.appspot.com",
+  messagingSenderId: "XXXXXXXXXXXX",
+  appId: "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+};
+
+// Firebaseの初期化
+const app = initializeApp(firebaseConfig);
+export const auth = getAuth(app);
+export const db = getFirestore(app);
+```
+
 **基本的な画面レイアウト**
 
 ```javascript
-import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import React, { useState, useEffect } from "react";
+import { View, Text, StyleSheet, FlatList } from "react-native";
+import { collection, query, where, getDocs } from "firebase/firestore";
+import { db, auth } from "../services/firebase";
 
 export default function BookListScreen() {
+  const [books, setBooks] = useState([]);
+  const userId = auth.currentUser?.uid;
+
+  useEffect(() => {
+    const fetchBooks = async () => {
+      if (userId) {
+        const q = query(collection(db, "books"), where("userId", "==", userId));
+        const querySnapshot = await getDocs(q);
+        const booksList = [];
+        querySnapshot.forEach((doc) => {
+          booksList.push({ id: doc.id, ...doc.data() });
+        });
+        setBooks(booksList);
+      }
+    };
+
+    fetchBooks();
+  }, [userId]);
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>書籍一覧</Text>
-      {/* ここにコンテンツを追加 */}
+      <FlatList
+        data={books}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => (
+          <View style={styles.bookItem}>
+            <Text style={styles.bookTitle}>{item.title}</Text>
+            {/* プログレスバー等のコンテンツを追加 */}
+          </View>
+        )}
+      />
     </View>
   );
 }
@@ -224,6 +289,9 @@ BookProgressApp/
 ├── assets/               # 画像やフォント
 ├── src/
 │   ├── screens/          # アプリの各画面
+│   │   ├── auth/         # 認証関連画面
+│   │   │   ├── LoginScreen.js
+│   │   │   └── RegisterScreen.js
 │   │   ├── BookListScreen.js
 │   │   ├── AddBookScreen.js
 │   │   ├── BookDetailScreen.js
@@ -233,8 +301,13 @@ BookProgressApp/
 │   │   └── ProgressBar.js
 │   ├── navigation/       # ナビゲーション設定
 │   │   └── AppNavigator.js
+│   ├── services/         # Firebase関連サービス
+│   │   ├── firebase.js   # Firebase初期設定
+│   │   ├── auth.js       # 認証サービス
+│   │   └── firestore.js  # データベースサービス
 │   └── utils/            # ユーティリティ関数
-│       └── storage.js    # AsyncStorage操作
+│       └── storage.js    # AsyncStorage（オフライン対応用）
+├── firebase.json        # Firebase設定
 ├── package.json
 └── README.md
 ```
@@ -257,8 +330,10 @@ BookProgressApp/
 
 - データ保存確認
 
-  - [ ] アプリ再起動後もデータが保持されるか
+  - [ ] Firebase へのデータ保存が正しく行われるか
+  - [ ] ログアウト・ログイン後もデータが正しく取得できるか
   - [ ] 複数の書籍データが正しく保存されるか
+  - [ ] オフラインでも操作できるか
 
 - UI/UX 確認
   - [ ] 画面遷移がスムーズか
@@ -317,8 +392,8 @@ BookProgressApp/
 
 ### 中期展望（3〜6 ヶ月）
 
-- クラウド連携機能の追加（Firebase 統合）
-- ユーザー認証の実装
+- Firebase 機能の拡張（Cloud Functions、Analytics）
+- プッシュ通知機能の追加
 - より高度な統計・グラフ表示
 
 ### 長期展望（6 ヶ月〜）

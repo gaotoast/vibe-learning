@@ -2,14 +2,22 @@
 
 ## 概要
 
-この API 設計は、React Native の iOS アプリのためのローカルデータ操作関数を定義します。PoC 版では Firebase などのクラウドサービスは使用せず、AsyncStorage を用いたシンプルな構成とします。
+この API 設計は、React Native の iOS アプリのための Firebase 連携関数を定義します。PoC 版では Firebase Firestore を使用したクラウドデータ操作 API を構築します。
 
 ## データアクセス API
 
+### 認証関連
+
+- `registerUser(email, password)` - ユーザー登録
+- `loginUser(email, password)` - ログイン
+- `logoutUser()` - ログアウト
+- `getCurrentUser()` - 現在のユーザー情報取得
+
 ### 書籍関連
 
-- `saveBook(book)` - 書籍を追加・更新
-- `getAllBooks()` - すべての書籍を取得
+- `addBook(bookData)` - 新規書籍を追加
+- `updateBook(id, bookData)` - 書籍情報を更新
+- `getAllBooks(userId)` - ユーザーの全書籍を取得
 - `getBookById(id)` - 特定の書籍を ID で取得
 - `deleteBook(id)` - 書籍を削除
 
@@ -17,11 +25,13 @@
 
 - `updateBookProgress(id, currentPage)` - 読書進捗を更新
 - `calculateProgress(currentPage, totalPages)` - 進捗率（％）を計算
+- `logReadingSession(bookId, pagesRead, readingTime)` - 読書セッションを記録
 
 ### 統計関連
 
-- `getReadingStats()` - 読書統計を取得（総読了ページ数、完読冊数など）
-- `getTotalPagesRead()` - 全書籍の読了ページ合計を計算
+- `getReadingStats(userId)` - 読書統計を取得（総読了ページ数、完読冊数など）
+- `getTotalPagesRead(userId)` - 全書籍の読了ページ合計を計算
+- `getReadingStreak(userId)` - 連続読書日数を計算
 
 ## リクエストとレスポンス例
 

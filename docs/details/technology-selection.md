@@ -13,12 +13,17 @@
 ## ライブラリ（PoC 必須）
 
 - **React Navigation**: アプリ内画面遷移管理（タブナビゲーション中心）
-- **Async Storage**: ローカルデータ永続化（書籍データの保存、オフライン対応）
+- **Firebase**: クラウドデータベース、認証、ストレージ
+  - Firebase Authentication: ユーザー認証
+  - Cloud Firestore: NoSQL データベース
+  - Firebase Storage: 画像保存（オプション）
+- **Async Storage**: ローカルキャッシュとオフライン対応
 
 ## ライブラリ（オプション・必要に応じて）
 
 - **React Native Elements**: 基本的な UI コンポーネント集（ボタン・リスト等）
 - **React Native Progress**: シンプルなプログレスバー表示
+- **React Native Firebase**: Firebase SDK の React Native 向け実装
 
 ## 設計・アーキテクチャ
 
@@ -29,8 +34,11 @@
 
 ## データ保存
 
-- **AsyncStorage**: シンプルなキー・バリュー形式のローカルストレージ
-- **JSON 構造**: 書籍データと読書進捗を格納
+- **Cloud Firestore**: スケーラブルな NoSQL クラウドデータベース
+  - コレクションとドキュメント構造によるデータ管理
+  - リアルタイム同期とオフラインサポート
+- **Firebase Authentication**: ユーザー認証とセキュリティ
+- **AsyncStorage**: ローカルキャッシュとオフライン操作のサポート
 
 ## 開発ツール
 
@@ -57,7 +65,8 @@
 
 ## 将来的な拡張オプション
 
-- **Firebase**: クラウドデータ同期、ユーザー認証（PoC 後に検討）
+- **Firebase Cloud Functions**: サーバーレスバックエンド処理
+- **Firebase Analytics**: ユーザー行動分析
 - **App Store**: 正式リリース（開発者登録と審査プロセス必要）
 - **TypeScript 移行**: コード品質向上のための段階的移行
 

@@ -2,80 +2,82 @@
 
 ## 概要
 
-このデータモデル設計は、ReactNative アプリのローカルデータ構造を定義します。PoC 版では、AsyncStorage を使用したシンプルな JSON データモデルを採用します。
+このデータモデル設計は、ReactNative アプリのデータ構造を定義します。PoC 版では、Firebase Firestore を使用したクラウドベースの NoSQL データベースモデルを採用します。
+
+## データコレクション構成
+
+### コレクション一覧
+
+- `users` - ユーザー情報
+- `books` - 書籍データ
+- `reading_stats` - 読書統計データ
+- `reading_logs` - 日別の読書記録（オプション）
 
 ## データ構造
 
-### 書籍オブジェクト
+### 書籍ドキュメント（books コレクション）
 
-| フィールド名   | データ型   | 説明                    |
-| -------------- | ---------- | ----------------------- |
-| id             | String     | 書籍 ID（ランダム生成） |
-| title          | String     | 書籍タイトル            |
-| author         | String     | 著者名                  |
-| totalPages     | Number     | 総ページ数              |
-| currentPage    | Number     | 現在の読了ページ数      |
-| progress       | Number     | 読了率（％）            |
-| coverImage     | String     | 表紙画像（オプション）  |
-| startDate      | ISO String | 読書開始日              |
-| lastUpdateDate | ISO String | 最終更新日              |
-| memo           | String     | メモ（オプション）      |
+| フィールド名   | データ型  | 説明                       |
+| -------------- | --------- | -------------------------- |
+| id             | String    | 書籍 ID（自動生成）        |
+| userId         | String    | ユーザー ID（参照キー）    |
+| title          | String    | 書籍タイトル               |
+| author         | String    | 著者名                     |
+| totalPages     | Number    | 総ページ数                 |
+| currentPage    | Number    | 現在の読了ページ数         |
+| progress       | Number    | 読了率（％）               |
+| coverImage     | String    | 表紙画像 URL（オプション） |
+| startDate      | Timestamp | 読書開始日                 |
+| lastUpdateDate | Timestamp | 最終更新日                 |
+| memo           | String    | メモ（オプション）         |
 
-### 統計データオブジェクト
+### 統計データドキュメント（reading_stats コレクション）
 
-| フィールド名    | データ型 | 説明             |
-| --------------- | -------- | ---------------- |
-| totalBooks      | Number   | 登録書籍総数     |
-| completedBooks  | Number   | 完読した書籍数   |
-| totalPagesRead  | Number   | 総読了ページ数   |
-| averageProgress | Number   | 平均進捗率（％） |
-
-## データ保存方法
-
-AsyncStorage を使用して、以下の形式でローカル保存します：
-
-### キー構造
-
-- `@BookProgress:books` - 書籍データの配列
-- `@BookProgress:stats` - 統計データ
+| フィールド名    | データ型 | 説明                    |
+| --------------- | -------- | ----------------------- |
+| id              | String   | 統計 ID（自動生成）     |
+| userId          | String   | ユーザー ID（参照キー） |
+| totalBooks      | Number   | 登録書籍総数            |
+| completedBooks  | Number   | 完読した書籍数          |
+| totalPagesRead  | Number   | 総読了ページ数          |
+| averageProgress | Number   | 平均進捗率（％）        |
 
 ## サンプルデータ
 
 ### 書籍データ例
 
 ```json
-[
-  {
-    "id": "book-1",
-    "title": "プログラミング言語の基礎",
-    "author": "山田太郎",
-    "totalPages": 450,
-    "currentPage": 120,
-    "progress": 26.67,
-    "startDate": "2025-05-20T10:30:00.000Z",
-    "lastUpdateDate": "2025-05-26T15:45:00.000Z",
-    "memo": "第5章から難しくなってきた"
+{
+  "id": "book123",
+  "userId": "user456",
+  "title": "プログラミング言語の基礎",
+  "author": "山田太郎",
+  "totalPages": 450,
+  "currentPage": 120,
+  "progress": 26.67,
+  "coverImage": "https://storage.example.com/covers/book123.jpg",
+  "startDate": {
+    "_seconds": 1653566785,
+    "_nanoseconds": 0
   },
-  {
-    "id": "book-2",
-    "title": "React Nativeアプリ開発入門",
-    "author": "鈴木花子",
-    "totalPages": 380,
-    "currentPage": 42,
-    "progress": 11.05,
-    "startDate": "2025-05-22T08:15:00.000Z",
-    "lastUpdateDate": "2025-05-25T20:30:00.000Z"
-  }
-]
+  "lastUpdateDate": {
+    "_seconds": 1653739585,
+    "_nanoseconds": 0
+  },
+  "memo": "第5章から難しくなってきた"
+}
 ```
 
-| フィールド名     | データ型 | 説明                                   |
-| ---------------- | -------- | -------------------------------------- |
-| userId           | String   | ユーザー ID                            |
-| date             | String   | 日付（YYYY-MM-DD 形式）                |
-| totalPagesRead   | Number   | その日の総読了ページ数                 |
-| totalReadingTime | Number   | その日の総読書時間（分）（オプション） |
-| booksAccessed    | Array    | その日にアクセスした書籍 ID のリスト   |
+### 読書ログドキュメント（reading_logs コレクション）
+
+| フィールド名     | データ型  | 説明                                   |
+| ---------------- | --------- | -------------------------------------- |
+| id               | String    | ログ ID（自動生成）                    |
+| userId           | String    | ユーザー ID                            |
+| date             | Timestamp | 日付                                   |
+| totalPagesRead   | Number    | その日の総読了ページ数                 |
+| totalReadingTime | Number    | その日の総読書時間（分）（オプション） |
+| booksAccessed    | Array     | その日にアクセスした書籍 ID のリスト   |
 
 ## インデックス設定
 
