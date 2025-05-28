@@ -1,131 +1,106 @@
-# データモデル設計（PoC 版）
+# データモデル設計（PoC 版 - Web アプリ / 初心者向けシンプル構成）
 
 ## 概要
 
-このデータモデル設計は、ReactNative アプリのデータ構造を定義します。PoC 版では、Firebase Firestore を使用したクラウドベースの NoSQL データベースモデルを採用します。
+このデータモデル設計は、React Web アプリのデータ構造を定義します。PoC 版では、Firebase Firestore を使用したシンプルな NoSQL データベースモデルを採用し、初心者でも理解しやすい構成にしています。
 
-## データコレクション構成
+## データコレクション構成（シンプル版）
 
 ### コレクション一覧
 
-- `users` - ユーザー情報
-- `books` - 書籍データ
-- `reading_stats` - 読書統計データ
-- `reading_logs` - 日別の読書記録（オプション）
+- `users` - ユーザー情報（Firebase Authentication と連携）
+- `books` - 書籍データ（メイン機能）
+- `reading_progress` - 読書進捗（シンプルな統計）
 
-## データ構造
+**注意**: 初心者向けに複雑なコレクションは避け、必要最小限の構成にしています。
+
+## データ構造（初心者向けシンプル版）
+
+### ユーザードキュメント（users コレクション）
+
+| フィールド名 | データ型  | 説明                               |
+| ------------ | --------- | ---------------------------------- |
+| id           | String    | ユーザー ID（Firebase Auth と同期） |
+| email        | String    | メールアドレス                     |
+| displayName  | String    | 表示名                             |
+| createdAt    | Timestamp | アカウント作成日                   |
 
 ### 書籍ドキュメント（books コレクション）
 
-| フィールド名   | データ型  | 説明                       |
-| -------------- | --------- | -------------------------- |
-| id             | String    | 書籍 ID（自動生成）        |
-| userId         | String    | ユーザー ID（参照キー）    |
-| title          | String    | 書籍タイトル               |
-| author         | String    | 著者名                     |
-| totalPages     | Number    | 総ページ数                 |
-| currentPage    | Number    | 現在の読了ページ数         |
-| progress       | Number    | 読了率（％）               |
-| coverImage     | String    | 表紙画像 URL（オプション） |
-| startDate      | Timestamp | 読書開始日                 |
-| lastUpdateDate | Timestamp | 最終更新日                 |
-| memo           | String    | メモ（オプション）         |
+| フィールド名   | データ型  | 説明                     |
+| -------------- | --------- | ------------------------ |
+| id             | String    | 書籍 ID（自動生成）      |
+| userId         | String    | ユーザー ID（参照キー）  |
+| title          | String    | 書籍タイトル             |
+| author         | String    | 著者名                   |
+| totalPages     | Number    | 総ページ数               |
+| currentPage    | Number    | 現在のページ             |
+| isCompleted    | Boolean   | 完読フラグ               |
+| startDate      | Timestamp | 読書開始日               |
+| lastUpdateDate | Timestamp | 最終更新日               |
+| memo           | String    | メモ（オプション）       |
 
-### 統計データドキュメント（reading_stats コレクション）
+### 読書進捗ドキュメント（reading_progress コレクション）
 
-| フィールド名    | データ型 | 説明                    |
-| --------------- | -------- | ----------------------- |
-| id              | String   | 統計 ID（自動生成）     |
-| userId          | String   | ユーザー ID（参照キー） |
-| totalBooks      | Number   | 登録書籍総数            |
-| completedBooks  | Number   | 完読した書籍数          |
-| totalPagesRead  | Number   | 総読了ページ数          |
-| averageProgress | Number   | 平均進捗率（％）        |
+| フィールド名   | データ型 | 説明                    |
+| -------------- | -------- | ----------------------- |
+| id             | String   | 進捗 ID（自動生成）     |
+| userId         | String   | ユーザー ID（参照キー） |
+| totalBooks     | Number   | 登録書籍総数            |
+| completedBooks | Number   | 完読した書籍数          |
+| totalPages     | Number   | 総読了ページ数          |
+| lastUpdated    | Timestamp| 最終更新日              |
 
-## サンプルデータ
+## サンプルデータ（初心者向け）
 
 ### 書籍データ例
 
 ```json
 {
-  "id": "book123",
-  "userId": "user456",
-  "title": "プログラミング言語の基礎",
-  "author": "山田太郎",
-  "totalPages": 450,
-  "currentPage": 120,
-  "progress": 26.67,
-  "coverImage": "https://storage.example.com/covers/book123.jpg",
-  "startDate": {
-    "_seconds": 1653566785,
-    "_nanoseconds": 0
-  },
-  "lastUpdateDate": {
-    "_seconds": 1653739585,
-    "_nanoseconds": 0
-  },
-  "memo": "第5章から難しくなってきた"
+  "id": "book_001",
+  "userId": "user_123",
+  "title": "JavaScript の基本",
+  "author": "田中花子",
+  "totalPages": 200,
+  "currentPage": 45,
+  "isCompleted": false,
+  "startDate": "2024-05-01T09:00:00Z",
+  "lastUpdateDate": "2024-05-15T14:30:00Z",
+  "memo": "関数の章が難しい"
 }
 ```
 
-### 読書ログドキュメント（reading_logs コレクション）
-
-| フィールド名     | データ型  | 説明                                   |
-| ---------------- | --------- | -------------------------------------- |
-| id               | String    | ログ ID（自動生成）                    |
-| userId           | String    | ユーザー ID                            |
-| date             | Timestamp | 日付                                   |
-| totalPagesRead   | Number    | その日の総読了ページ数                 |
-| totalReadingTime | Number    | その日の総読書時間（分）（オプション） |
-| booksAccessed    | Array     | その日にアクセスした書籍 ID のリスト   |
-
-## インデックス設定
-
-### シングルフィールドインデックス
-
-- books: userId
-- books: progress
-- reading_stats: userId
-- reading_stats: date
-
-### 複合インデックス
-
-- books: [userId, progress]（進捗でのフィルタリング用）
-- reading_stats: [userId, date]（期間指定の統計データ取得用）
-
-## データ構造の例
-
-### books ドキュメント例
+### ユーザーデータ例
 
 ```json
 {
-  "id": "book123",
-  "userId": "user456",
-  "title": "プログラミング言語の基礎",
-  "author": "山田太郎",
-  "totalPages": 450,
-  "currentPage": 120,
-  "progress": 26.67,
-  "coverImage": "https://storage.example.com/covers/book123.jpg",
-  "startDate": {
-    "_seconds": 1653566785,
-    "_nanoseconds": 0
-  },
-  "lastUpdateDate": {
-    "_seconds": 1653739585,
-    "_nanoseconds": 0
-  },
-  "memo": "第5章から難しくなってきた。コード例をしっかり試すこと"
+  "id": "user_123",
+  "email": "user@example.com",
+  "displayName": "山田太郎",
+  "createdAt": "2024-05-01T08:00:00Z"
 }
 ```
 
-## セキュリティルール
+### 読書進捗データ例
+
+```json
+{
+  "id": "progress_001",
+  "userId": "user_123",
+  "totalBooks": 3,
+  "completedBooks": 1,
+  "totalPages": 89,
+  "lastUpdated": "2024-05-15T14:30:00Z"
+}
+```
+
+## Firestore セキュリティルール（シンプル版）
 
 ```javascript
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // ユーザーは自分のデータのみアクセス可能
+    // ユーザーは自分のデータのみアクセス可能（基本的なルール）
     match /users/{userId} {
       allow read, write: if request.auth.uid == userId;
     }
@@ -134,15 +109,10 @@ service cloud.firestore {
     match /books/{bookId} {
       allow read, write: if request.auth.uid == resource.data.userId;
       allow create: if request.auth.uid == request.resource.data.userId;
-
-      // 読書ログも所有者のみアクセス可能
-      match /reading_logs/{logId} {
-        allow read, write: if request.auth.uid == get(/databases/$(database)/documents/books/$(bookId)).data.userId;
-      }
     }
 
-    // 統計データは所有者のみアクセス可能
-    match /reading_stats/{statId} {
+    // 読書進捗は所有者のみアクセス可能
+    match /reading_progress/{progressId} {
       allow read, write: if request.auth.uid == resource.data.userId;
       allow create: if request.auth.uid == request.resource.data.userId;
     }
@@ -150,41 +120,24 @@ service cloud.firestore {
 }
 ```
 
-## データバックアップ戦略
+## 初心者向けデータ操作の基本
 
-- Firebase 定期エクスポート機能を利用し、Cloud Storage への日次バックアップを設定
-- Cloud Functions を使用した重要データの変更監視とバックアップトリガー
-- ユーザーデータエクスポート機能の提供（GDPR 対応）
+### データの基本操作（CRUD）
+
+1. **Create（作成）**: 新しい書籍を追加
+2. **Read（読み取り）**: 書籍リストを表示
+3. **Update（更新）**: 読書進捗を更新
+4. **Delete（削除）**: 書籍を削除
+
+### ローカルストレージとの連携
+
+- **localStorage**: ユーザー設定やテンポラリデータ
+- **Firestore**: メインデータの永続化
+- **段階的同期**: オフライン→オンライン時の同期
+
+## データバックアップ（将来的なオプション）
+
+- **Firebase の自動バックアップ**: 基本設定で十分
+- **エクスポート機能**: ユーザーデータの CSV ダウンロード（将来実装）
 
 <!-- Generated by Copilot -->
-
-> | name | VARCHAR(50)| NOT NULL |
-> | email | VARCHAR(100)| UNIQUE, NOT NULL |
-> | password | VARCHAR(255)| NOT NULL |
-> | created_at | TIMESTAMP | NOT NULL, DEFAULT now() |
-> | updated_at | TIMESTAMP | NOT NULL, DEFAULT now() |
-
-## インデックス
-
-> (例)
->
-> ### users テーブル
->
-> - email に UNIQUE インデックス
-
-## リレーションシップ
-
-> (例)
->
-> ### users テーブル
->
-> - users.id → habits.user_id (1:N)
-
-## データベース設計の説明
-
-> (例)
->
-> ### habits テーブル
->
-> - `description`: ユーザーが入力した習慣の自然言語での説明
-> - `action`: AI が抽出した実際の行動（例: 「英語を勉強する」）

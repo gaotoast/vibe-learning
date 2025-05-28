@@ -1,62 +1,105 @@
-# API 設計（PoC 版）
+# API 設計（PoC 版 - Web アプリ / 初心者向けシンプル構成）
 
 ## 概要
 
-この API 設計は、React Native の iOS アプリのための Firebase 連携関数を定義します。PoC 版では Firebase Firestore を使用したクラウドデータ操作 API を構築します。
+この API 設計は、React Web アプリのための Firebase 連携関数を定義します。PoC 版では Firebase Firestore を使用したシンプルなデータ操作 API を構築し、初心者でも理解しやすい関数名と処理にしています。
 
-## データアクセス API
+## データアクセス API（初心者向けシンプル版）
 
-### 認証関連
+### 認証関連（Firebase Authentication）
 
-- `registerUser(email, password)` - ユーザー登録
-- `loginUser(email, password)` - ログイン
-- `logoutUser()` - ログアウト
-- `getCurrentUser()` - 現在のユーザー情報取得
+- `signUpUser(email, password)` - 新規ユーザー登録
+- `signInUser(email, password)` - ユーザーログイン
+- `signOutUser()` - ログアウト
+- `getCurrentUser()` - 現在ログイン中のユーザー情報取得
 
-### 書籍関連
+### 書籍関連（基本的な CRUD 操作）
 
-- `addBook(bookData)` - 新規書籍を追加
-- `updateBook(id, bookData)` - 書籍情報を更新
+- `addBook(bookData)` - 新しい書籍を追加
 - `getAllBooks(userId)` - ユーザーの全書籍を取得
-- `getBookById(id)` - 特定の書籍を ID で取得
-- `deleteBook(id)` - 書籍を削除
+- `updateBook(bookId, updateData)` - 書籍情報を更新
+- `deleteBook(bookId)` - 書籍を削除
 
-### 進捗管理
+### 読書進捗関連（シンプルな進捗管理）
 
-- `updateBookProgress(id, currentPage)` - 読書進捗を更新
-- `calculateProgress(currentPage, totalPages)` - 進捗率（％）を計算
-- `logReadingSession(bookId, pagesRead, readingTime)` - 読書セッションを記録
+- `updateProgress(bookId, currentPage)` - 読書進捗を更新
+- `markAsCompleted(bookId)` - 書籍を完読に設定
+- `getReadingStats(userId)` - 読書統計を取得（総書籍数、完読数など）
 
-### 統計関連
+### ローカルストレージ関連（ブラウザ用）
 
-- `getReadingStats(userId)` - 読書統計を取得（総読了ページ数、完読冊数など）
-- `getTotalPagesRead(userId)` - 全書籍の読了ページ合計を計算
-- `getReadingStreak(userId)` - 連続読書日数を計算
+- `saveToLocal(key, data)` - ローカルストレージに保存
+- `getFromLocal(key)` - ローカルストレージから取得
+- `clearLocal(key)` - ローカルストレージから削除
 
-## リクエストとレスポンス例
+## リクエストとレスポンス例（初心者向け）
+
+### signUpUser(email, password)
+
+**リクエスト**
+
+```javascript
+// 新規ユーザー登録
+const email = "user@example.com";
+const password = "password123";
+
+try {
+  const result = await signUpUser(email, password);
+  console.log("登録成功:", result);
+} catch (error) {
+  console.log("登録失敗:", error.message);
+}
+```
+
+**レスポンス**
+
+```javascript
+// 成功時
+{
+  success: true,
+  user: {
+    uid: "firebase_user_id",
+    email: "user@example.com"
+  }
+}
+
+// エラー時
+{
+  success: false,
+  error: "メールアドレスが既に使用されています"
+}
+```
 
 ### addBook(bookData)
 
 **リクエスト**
 
 ```javascript
+// 新しい書籍を追加
 const bookData = {
-  title: "プログラミング言語の基礎",
-  author: "山田太郎",
-  totalPages: 450,
+  title: "JavaScript の基本",
+  author: "田中花子",
+  totalPages: 200,
   currentPage: 0,
-  coverImage: null, // オプション：画像データまたはURL
-  startDate: new Date(),
-  userId: "currentUserID",
+  memo: "プログラミング学習用"
 };
+
+try {
+  const result = await addBook(bookData);
+  console.log("書籍追加成功:", result);
+} catch (error) {
+  console.log("書籍追加失敗:", error.message);
+}
 ```
 
 **レスポンス**
 
 ```javascript
+// 成功時
 {
-  id: "generatedBookId", // Firestoreで生成されたドキュメントID
-  success: true
+  success: true,
+  bookId: "book_001",
+  message: "書籍が正常に追加されました"
 }
 ```
 
@@ -65,17 +108,27 @@ const bookData = {
 **リクエスト**
 
 ```javascript
-const bookId = "existingBookId";
-const currentPage = 120;
+// 読書進捗を更新
+const bookId = "book_001";
+const currentPage = 45;
+
+try {
+  const result = await updateProgress(bookId, currentPage);
+  console.log("進捗更新成功:", result);
+} catch (error) {
+  console.log("進捗更新失敗:", error.message);
+}
 ```
 
 **レスポンス**
 
 ```javascript
+// 成功時
 {
   success: true,
-  progress: 26.67, // 計算された読了率（％）
-  updatedAt: "2025-05-26T12:30:45Z"
+  currentPage: 45,
+  progressPercent: 22.5, // 45/200 * 100
+  message: "読書進捗が更新されました"
 }
 ```
 
@@ -84,47 +137,136 @@ const currentPage = 120;
 **リクエスト**
 
 ```javascript
-const userId = "currentUserID";
+// 読書統計を取得
+const userId = getCurrentUser().uid;
+
+try {
+  const stats = await getReadingStats(userId);
+  console.log("統計データ:", stats);
+} catch (error) {
+  console.log("統計取得失敗:", error.message);
+}
 ```
 
 **レスポンス**
 
 ```javascript
+// 成功時
 {
-  totalBooks: 5,
-  completedBooks: 2,
-  inProgressBooks: 3,
-  totalPagesRead: 1250,
-  averageProgress: 65.3, // パーセンテージ
-  readingStreakDays: 7
+  totalBooks: 3,        // 登録書籍数
+  completedBooks: 1,    // 完読書籍数
+  totalPages: 89,       // 総読了ページ数
+  booksInProgress: 2    // 読書中の書籍数
 }
 ```
 
-## エラーハンドリング
+## エラーハンドリング（初心者向け）
 
-すべての API 呼び出しは以下のようなエラーレスポンスを返す可能性があります：
+### 基本的なエラーパターン
 
 ```javascript
+// 認証エラー
 {
-  error: true,
-  code: "auth/user-not-found",
-  message: "指定されたユーザーが見つかりません。",
+  success: false,
+  error: "auth/user-not-found",
+  message: "ユーザーが見つかりません"
+}
+
+// ネットワークエラー
+{
+  success: false,
+  error: "network-error",
+  message: "インターネット接続を確認してください"
+}
+
+// データ不足エラー
+{
+  success: false,
+  error: "validation-error",
+  message: "書籍タイトルが入力されていません"
 }
 ```
 
-## バッチ処理とトランザクション
-
-データの整合性が必要な場合は、Firestore のバッチ処理やトランザクションを活用します：
+### エラーハンドリングの実装例
 
 ```javascript
-// バッチ処理の例
-const batch = firestore.batch();
-// 複数の書籍のステータスを一括更新
-booksToUpdate.forEach((book) => {
-  const bookRef = firestore.collection("books").doc(book.id);
-  batch.update(bookRef, { status: "archived" });
-});
-await batch.commit();
+// 基本的なエラーハンドリング
+async function handleAddBook(bookData) {
+  try {
+    const result = await addBook(bookData);
+    if (result.success) {
+      alert("書籍が追加されました！");
+    }
+  } catch (error) {
+    console.error("エラー:", error);
+    alert("書籍の追加に失敗しました: " + error.message);
+  }
+}
 ```
+
+## ローカルストレージの活用（初心者向け）
+
+### 基本的な使用例
+
+```javascript
+// ユーザー設定の保存
+function saveUserSettings(settings) {
+  localStorage.setItem('userSettings', JSON.stringify(settings));
+}
+
+// ユーザー設定の取得
+function getUserSettings() {
+  const settings = localStorage.getItem('userSettings');
+  return settings ? JSON.parse(settings) : null;
+}
+
+// 一時的なデータの保存（書きかけのメモなど）
+function saveTempData(key, data) {
+  sessionStorage.setItem(key, JSON.stringify(data));
+}
+```
+
+## Firebase 設定（Windows 環境向け）
+
+### プロジェクト設定ファイル例
+
+```javascript
+// firebase-config.js（初心者向けシンプル版）
+import { initializeApp } from 'firebase/app';
+import { getFirestore } from 'firebase/firestore';
+import { getAuth } from 'firebase/auth';
+
+// Firebase 設定（実際の値は Firebase Console から取得）
+const firebaseConfig = {
+  apiKey: "your-api-key",
+  authDomain: "your-project.firebaseapp.com",
+  projectId: "your-project-id",
+  storageBucket: "your-project.appspot.com",
+  messagingSenderId: "123456789",
+  appId: "your-app-id"
+};
+
+// Firebase 初期化
+const app = initializeApp(firebaseConfig);
+export const db = getFirestore(app);
+export const auth = getAuth(app);
+```
+
+## API 使用時の注意点（初心者向け）
+
+### セキュリティ
+- **API キーは公開リポジトリにコミットしない**
+- **環境変数（.env ファイル）を活用**
+- **Firestore セキュリティルールを適切に設定**
+
+### パフォーマンス
+- **必要なデータのみ取得**（全件取得を避ける）
+- **ローカルキャッシュの活用**
+- **ページング機能の実装**（大量データ対応）
+
+### エラー対応
+- **try-catch で確実にエラーハンドリング**
+- **ユーザーにわかりやすいエラーメッセージ表示**
+- **console.log でデバッグ情報を出力**
 
 <!-- Generated by Copilot -->
