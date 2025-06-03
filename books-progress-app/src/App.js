@@ -14,7 +14,6 @@ import "./components/AuthStyles.css";
 // ページコンポーネントをインポート
 import HomePage from "./pages/HomePage";
 import BookListPage from "./pages/BookListPage";
-import AddBookPage from "./pages/AddBookPage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 
@@ -121,12 +120,6 @@ function App() {
                   >
                     書籍リスト
                   </NavLink>
-                  <NavLink
-                    to="/add"
-                    className={({ isActive }) => (isActive ? "active" : "")}
-                  >
-                    書籍追加
-                  </NavLink>
                 </>
               )}
             </div>
@@ -181,14 +174,6 @@ function App() {
               element={
                 <ProtectedRoute>
                   <BookListPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/add"
-              element={
-                <ProtectedRoute>
-                  <AddBookPage />
                 </ProtectedRoute>
               }
             />
