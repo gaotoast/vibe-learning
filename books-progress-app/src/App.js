@@ -6,6 +6,7 @@ import {
   Route,
   NavLink,
 } from "react-router-dom";
+import { FiSun, FiMoon } from "react-icons/fi";
 import "./App.css";
 
 // ページコンポーネントをインポート
@@ -72,7 +73,6 @@ function App() {
             </div>
           </nav>
         </header>
-
         <main className="main-content">
           <Routes>
             <Route path="/" element={<HomePage />} />
@@ -80,11 +80,9 @@ function App() {
             <Route path="/add" element={<AddBookPage />} />
           </Routes>{" "}
         </main>
-
         <footer className="footer">
           <p>&copy; {new Date().getFullYear()} 書籍進捗管理アプリ</p>
-        </footer>
-
+        </footer>{" "}
         {/* ダークモード切り替えボタン */}
         <button
           className="theme-toggle"
@@ -94,7 +92,11 @@ function App() {
             isDarkMode ? "ライトモードに切り替え" : "ダークモードに切り替え"
           }
         >
-          {isDarkMode ? "☀️" : "🌙"}
+          {isDarkMode ? (
+            <FiSun className="theme-icon" />
+          ) : (
+            <FiMoon className="theme-icon" />
+          )}
         </button>
       </div>
     </Router>
