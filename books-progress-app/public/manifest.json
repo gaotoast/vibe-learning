@@ -1,6 +1,6 @@
 {
-  "short_name": "書籍進捗管理",
-  "name": "書籍進捗管理アプリ",
+  "short_name": "PageTracker",
+  "name": "Page Tracker",
   "icons": [
     {
       "src": "my-favicon.ico",

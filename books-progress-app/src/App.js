@@ -48,18 +48,19 @@ function App() {
   return (
     <Router>
       <div className="App">
+        {" "}
         <header className="header">
           <nav className="nav">
-            <h1>書籍進捗管理</h1>
+            <h1>Page Tracker</h1>
             <div className="nav-links">
               <NavLink
-                to="/"
+                to="/stats"
                 className={({ isActive }) => (isActive ? "active" : "")}
               >
-                ホーム
+                統計
               </NavLink>
               <NavLink
-                to="/books"
+                to="/"
                 className={({ isActive }) => (isActive ? "active" : "")}
               >
                 書籍リスト
@@ -72,16 +73,16 @@ function App() {
               </NavLink>
             </div>
           </nav>
-        </header>
+        </header>{" "}
         <main className="main-content">
           <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/books" element={<BookListPage />} />
+            <Route path="/stats" element={<HomePage />} />
+            <Route path="/" element={<BookListPage />} />
             <Route path="/add" element={<AddBookPage />} />
-          </Routes>{" "}
-        </main>
+          </Routes>
+        </main>{" "}
         <footer className="footer">
-          <p>&copy; {new Date().getFullYear()} 書籍進捗管理アプリ</p>
+          <p>&copy; {new Date().getFullYear()} Page Tracker</p>
         </footer>{" "}
         {/* ダークモード切り替えボタン */}
         <button
