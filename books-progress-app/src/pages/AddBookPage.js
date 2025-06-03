@@ -18,6 +18,9 @@ const AddBookPage = () => {
   // エラーメッセージの状態
   const [errors, setErrors] = useState({});
 
+  // 送信中の状態
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   // 成功メッセージの状態
   const [success, setSuccess] = useState("");
 
@@ -38,7 +41,7 @@ const AddBookPage = () => {
   };
 
   // フォーム送信ハンドラー
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     // バリデーション
@@ -73,34 +76,44 @@ const AddBookPage = () => {
 
     // エラーをリセット
     setErrors({});
+    setIsSubmitting(true);
 
-    // BookServiceを使用して書籍を追加
-    const result = addBook(formData);
+    try {
+      // BookServiceを使用して書籍を追加（非同期処理）
+      const result = await addBook(formData);
 
-    if (result.success) {
-      // 成功メッセージを表示
-      setSuccess("書籍が追加されました！");
+      if (result.success) {
+        // 成功メッセージを表示
+        setSuccess("書籍が追加されました！");
 
-      // フォームをリセット
-      setFormData({
-        title: "",
-        author: "",
-        totalPages: 0,
-        currentPage: 0,
-        memo: "",
-      });
+        // フォームをリセット
+        setFormData({
+          title: "",
+          author: "",
+          totalPages: 0,
+          currentPage: 0,
+          memo: "",
+        });
 
-      // 2秒後に書籍リストページへ遷移
-      setTimeout(() => {
-        navigate("/books");
-      }, 2000);
-    } else {
-      // エラーメッセージを表示
+        // 2秒後に書籍リストページへ遷移
+        setTimeout(() => {
+          navigate("/");
+        }, 2000);
+      } else {
+        // エラーメッセージを表示
+        setErrors({
+          submit:
+            result.message ||
+            "データの保存中にエラーが発生しました。もう一度お試しください。",
+        });
+      }
+    } catch (error) {
+      console.error("書籍追加エラー:", error);
       setErrors({
-        submit:
-          result.message ||
-          "データの保存中にエラーが発生しました。もう一度お試しください。",
+        submit: "エラーが発生しました。ネットワーク接続を確認してください。",
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -124,6 +137,7 @@ const AddBookPage = () => {
               value={formData.title}
               onChange={handleInputChange}
               className={errors.title ? "error" : ""}
+              disabled={isSubmitting}
             />
             {errors.title && <p className="error-text">{errors.title}</p>}
           </div>
@@ -139,6 +153,7 @@ const AddBookPage = () => {
               value={formData.author}
               onChange={handleInputChange}
               className={errors.author ? "error" : ""}
+              disabled={isSubmitting}
             />
             {errors.author && <p className="error-text">{errors.author}</p>}
           </div>
@@ -155,6 +170,7 @@ const AddBookPage = () => {
               onChange={handleInputChange}
               min="1"
               className={errors.totalPages ? "error" : ""}
+              disabled={isSubmitting}
             />
             {errors.totalPages && (
               <p className="error-text">{errors.totalPages}</p>
@@ -172,6 +188,7 @@ const AddBookPage = () => {
               min="0"
               max={formData.totalPages}
               className={errors.currentPage ? "error" : ""}
+              disabled={isSubmitting}
             />
             {errors.currentPage && (
               <p className="error-text">{errors.currentPage}</p>
@@ -186,17 +203,19 @@ const AddBookPage = () => {
               value={formData.memo}
               onChange={handleInputChange}
               rows="3"
+              disabled={isSubmitting}
             />
           </div>
 
           <div className="form-actions">
-            <button type="submit" className="btn">
-              書籍を追加
+            <button type="submit" className="btn" disabled={isSubmitting}>
+              {isSubmitting ? "追加中..." : "書籍を追加"}
             </button>
             <button
               type="button"
               className="btn btn-secondary"
-              onClick={() => navigate("/books")}
+              onClick={() => navigate("/")}
+              disabled={isSubmitting}
             >
               キャンセル
             </button>

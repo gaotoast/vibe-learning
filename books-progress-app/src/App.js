@@ -5,18 +5,51 @@ import {
   Routes,
   Route,
   NavLink,
+  Navigate,
 } from "react-router-dom";
-import { FiSun, FiMoon } from "react-icons/fi";
+import { FiSun, FiMoon, FiUser } from "react-icons/fi";
 import "./App.css";
+import "./components/AuthStyles.css";
 
 // ページコンポーネントをインポート
 import HomePage from "./pages/HomePage";
 import BookListPage from "./pages/BookListPage";
 import AddBookPage from "./pages/AddBookPage";
+import LoginPage from "./pages/LoginPage";
+import RegisterPage from "./pages/RegisterPage";
+
+// Firebase認証関連のインポート
+import {
+  initializeFirebase,
+  onAuthStateChange,
+  logout,
+} from "./services/firebaseService";
 
 function App() {
+  // Firebase初期化
+  useEffect(() => {
+    initializeFirebase();
+  }, []);
+
+  // 認証状態の管理
+  const [user, setUser] = useState(null);
+  const [authLoading, setAuthLoading] = useState(true);
+
   // テーマ状態の管理
   const [isDarkMode, setIsDarkMode] = useState(false);
+
+  // 認証状態の監視
+  useEffect(() => {
+    const unsubscribe = onAuthStateChange((authUser) => {
+      setUser(authUser);
+      setAuthLoading(false);
+    });
+
+    // クリーンアップ関数
+    return () => {
+      unsubscribe();
+    };
+  }, []);
 
   // ユーザーのシステム設定を確認
   useEffect(() => {
@@ -45,45 +78,128 @@ function App() {
     document.body.className = isDarkMode ? "dark-mode" : "light-mode";
   }, [isDarkMode]);
 
+  // ログアウト処理
+  const handleLogout = async () => {
+    try {
+      const result = await logout();
+      if (result.success) {
+        // リダイレクトは認証状態の変更により自動的に行われます
+      }
+    } catch (error) {
+      console.error("ログアウトエラー:", error);
+    }
+  };
+
+  // 認証保護されたルートのラッパー
+  const ProtectedRoute = ({ children }) => {
+    if (authLoading) {
+      // 認証状態チェック中は読み込み中表示
+      return <div className="loading-auth">認証状態を確認中...</div>;
+    }
+
+    return user ? children : <Navigate to="/login" />;
+  };
+
   return (
     <Router>
       <div className="App">
-        {" "}
         <header className="header">
           <nav className="nav">
             <h1>Page Tracker</h1>
             <div className="nav-links">
-              <NavLink
-                to="/stats"
-                className={({ isActive }) => (isActive ? "active" : "")}
-              >
-                統計
-              </NavLink>
-              <NavLink
-                to="/"
-                className={({ isActive }) => (isActive ? "active" : "")}
-              >
-                書籍リスト
-              </NavLink>
-              <NavLink
-                to="/add"
-                className={({ isActive }) => (isActive ? "active" : "")}
-              >
-                書籍追加
-              </NavLink>
+              {user && (
+                <>
+                  <NavLink
+                    to="/stats"
+                    className={({ isActive }) => (isActive ? "active" : "")}
+                  >
+                    統計
+                  </NavLink>
+                  <NavLink
+                    to="/"
+                    className={({ isActive }) => (isActive ? "active" : "")}
+                  >
+                    書籍リスト
+                  </NavLink>
+                  <NavLink
+                    to="/add"
+                    className={({ isActive }) => (isActive ? "active" : "")}
+                  >
+                    書籍追加
+                  </NavLink>
+                </>
+              )}
+            </div>
+            {/* 認証状態表示 */}
+            <div className="auth-status">
+              {user ? (
+                <div className="user-info">
+                  <FiUser />
+                  <span className="user-email">{user.email}</span>
+                  <button onClick={handleLogout} className="btn logout-btn">
+                    ログアウト
+                  </button>
+                </div>
+              ) : (
+                !authLoading && (
+                  <div className="auth-links">
+                    <NavLink
+                      to="/login"
+                      className={({ isActive }) => (isActive ? "active" : "")}
+                    >
+                      ログイン
+                    </NavLink>
+                    <NavLink
+                      to="/register"
+                      className={({ isActive }) => (isActive ? "active" : "")}
+                    >
+                      登録
+                    </NavLink>
+                  </div>
+                )
+              )}
             </div>
           </nav>
-        </header>{" "}
+        </header>
         <main className="main-content">
           <Routes>
-            <Route path="/stats" element={<HomePage />} />
-            <Route path="/" element={<BookListPage />} />
-            <Route path="/add" element={<AddBookPage />} />
+            {/* 公開ルート */}
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+
+            {/* 保護されたルート */}
+            <Route
+              path="/stats"
+              element={
+                <ProtectedRoute>
+                  <HomePage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/"
+              element={
+                <ProtectedRoute>
+                  <BookListPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/add"
+              element={
+                <ProtectedRoute>
+                  <AddBookPage />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* リダイレクト */}
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
-        </main>{" "}
+        </main>
         <footer className="footer">
           <p>&copy; {new Date().getFullYear()} Page Tracker</p>
-        </footer>{" "}
+        </footer>
         {/* ダークモード切り替えボタン */}
         <button
           className="theme-toggle"

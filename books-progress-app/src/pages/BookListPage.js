@@ -12,54 +12,75 @@ const BookListPage = () => {
   // 状態管理
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const [filter, setFilter] = useState("all"); // all, reading, completed
 
   // 書籍データを読み込む
   useEffect(() => {
-    const loadBooks = () => {
-      const result = getAllBooks();
-      if (result.success) {
-        setBooks(result.books);
-      } else {
-        console.error("書籍データの読み込みエラー:", result.message);
+    const loadBooks = async () => {
+      setLoading(true);
+      try {
+        const result = await getAllBooks();
+        if (result.success) {
+          setBooks(result.books);
+          setError("");
+        } else {
+          console.error("書籍データの読み込みエラー:", result.message);
+          setBooks([]);
+          setError(result.message);
+        }
+      } catch (err) {
+        console.error("書籍データの読み込み例外:", err);
         setBooks([]);
+        setError("データの読み込み中にエラーが発生しました");
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
 
     loadBooks();
   }, []);
 
   // 書籍を削除する関数
-  const handleDeleteBook = (id) => {
+  const handleDeleteBook = async (id) => {
     // 確認ダイアログを表示
     if (window.confirm("この書籍を削除してもよろしいですか？")) {
-      const result = deleteBook(id);
-      if (result.success) {
-        // 画面上の書籍リストを更新
-        setBooks(books.filter((book) => book.id !== id));
-      } else {
-        alert(result.message);
+      try {
+        const result = await deleteBook(id);
+        if (result.success) {
+          // 画面上の書籍リストを更新
+          setBooks(books.filter((book) => book.id !== id));
+        } else {
+          alert(result.message);
+        }
+      } catch (err) {
+        console.error("書籍削除エラー:", err);
+        alert("書籍の削除中にエラーが発生しました");
       }
     }
   };
 
   // 読書進捗を更新する関数
-  const handleUpdateProgress = (id, newPage) => {
+  const handleUpdateProgress = async (id, newPage) => {
     // 数値以外の入力は無視
     const pageNumber = parseInt(newPage, 10);
     if (isNaN(pageNumber)) return;
 
-    // サービスを使用して更新
-    const result = updateProgress(id, pageNumber);
+    try {
+      // サービスを使用して更新
+      const result = await updateProgress(id, pageNumber);
 
-    if (result.success) {
-      // 書籍リストを更新
-      setBooks((prevBooks) =>
-        prevBooks.map((book) => (book.id === id ? result.book : book))
-      );
-    } else {
-      alert(result.message);
+      if (result.success) {
+        // 書籍リストを更新
+        setBooks((prevBooks) =>
+          prevBooks.map((book) => (book.id === id ? result.book : book))
+        );
+      } else {
+        alert(result.message);
+      }
+    } catch (err) {
+      console.error("進捗更新エラー:", err);
+      alert("進捗の更新中にエラーが発生しました");
     }
   };
 
@@ -69,9 +90,6 @@ const BookListPage = () => {
     if (filter === "completed") return book.isCompleted;
     return true; // 'all' の場合は全て表示
   });
-
-  // BookListPageではこれらの関数が不要なため削除
-  // 必要な計算はBookCardコンポーネント内部で行われています
 
   return (
     <div>
@@ -101,6 +119,13 @@ const BookListPage = () => {
 
       {loading ? (
         <p className="loading-message">読み込み中...</p>
+      ) : error ? (
+        <div className="error-state">
+          <p className="error-message">{error}</p>
+          <button className="btn" onClick={() => window.location.reload()}>
+            再読み込み
+          </button>
+        </div>
       ) : filteredBooks.length > 0 ? (
         <div className="books-grid">
           {filteredBooks.map((book) => (

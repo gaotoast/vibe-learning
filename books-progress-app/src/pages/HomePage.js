@@ -11,15 +11,29 @@ const HomePage = () => {
     totalPages: 0,
     readPages: 0,
   });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   // コンポーネントがマウントされたときに統計情報を読み込む
   useEffect(() => {
-    const loadStats = () => {
-      const result = getReadingStats();
-      if (result.success) {
-        setStats(result.stats);
-      } else {
-        console.error("統計データの読み込みエラー:", result.message);
+    const loadStats = async () => {
+      setLoading(true);
+      try {
+        const result = await getReadingStats();
+        if (result.success) {
+          setStats(result.stats);
+          setError("");
+        } else {
+          console.error("統計データの読み込みエラー:", result.message);
+          setError(
+            result.message || "統計データの読み込み中にエラーが発生しました"
+          );
+        }
+      } catch (err) {
+        console.error("統計取得エラー:", err);
+        setError("統計データの読み込み中にエラーが発生しました");
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -37,47 +51,62 @@ const HomePage = () => {
     stats.totalPages > 0
       ? Math.round((stats.readPages / stats.totalPages) * 100)
       : 0;
+
   return (
     <div>
       <h2 className="page-title">Page Tracker</h2>
       <p className="page-subtitle">あなたの読書状況を簡単に管理できます</p>
 
-      <div className="stats-container">
-        <div className="stats-card">
-          <h3>読書の統計</h3>
-          <div className="stats-grid">
-            <div className="stat-item">
-              <p className="stat-value">{stats.totalBooks}</p>
-              <p className="stat-label">合計書籍数</p>
-            </div>
-            <div className="stat-item">
-              <p className="stat-value">{stats.completedBooks}</p>
-              <p className="stat-label">完読数</p>
-            </div>
-            <div className="stat-item">
-              <p className="stat-value">{stats.inProgressBooks}</p>
-              <p className="stat-label">読書中</p>
-            </div>
-            <div className="stat-item">
-              <p className="stat-value">{completionRate}%</p>
-              <p className="stat-label">完読率</p>
+      {loading ? (
+        <div className="loading-container">
+          <p className="loading-message">統計情報を読み込み中...</p>
+        </div>
+      ) : error ? (
+        <div className="error-state">
+          <p className="error-message">{error}</p>
+          <button className="btn" onClick={() => window.location.reload()}>
+            再読み込み
+          </button>
+        </div>
+      ) : (
+        <div className="stats-container">
+          <div className="stats-card">
+            <h3>読書の統計</h3>
+            <div className="stats-grid">
+              <div className="stat-item">
+                <p className="stat-value">{stats.totalBooks}</p>
+                <p className="stat-label">合計書籍数</p>
+              </div>
+              <div className="stat-item">
+                <p className="stat-value">{stats.completedBooks}</p>
+                <p className="stat-label">完読数</p>
+              </div>
+              <div className="stat-item">
+                <p className="stat-value">{stats.inProgressBooks}</p>
+                <p className="stat-label">読書中</p>
+              </div>
+              <div className="stat-item">
+                <p className="stat-value">{completionRate}%</p>
+                <p className="stat-label">完読率</p>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div className="stats-card">
-          <h3>ページ進捗</h3>
-          <p>
-            {stats.readPages} / {stats.totalPages} ページ ({pageProgressRate}%)
-          </p>
-          <div className="progress-bar">
-            <div
-              className="progress-fill"
-              style={{ width: `${pageProgressRate}%` }}
-            ></div>
+          <div className="stats-card">
+            <h3>ページ進捗</h3>
+            <p>
+              {stats.readPages} / {stats.totalPages} ページ ({pageProgressRate}
+              %)
+            </p>
+            <div className="progress-bar">
+              <div
+                className="progress-fill"
+                style={{ width: `${pageProgressRate}%` }}
+              ></div>
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };
