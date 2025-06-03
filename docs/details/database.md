@@ -1,109 +1,119 @@
-# データモデル設計（PoC 版 - Web アプリ / 初心者向けシンプル構成）
+# データモデル設計（Page Tracker - PoC 版）
 
 ## 概要
 
-このデータモデル設計は、React Web アプリのデータ構造を定義します。PoC 版では、Firebase Firestore を使用したシンプルな NoSQL データベースモデルを採用し、初心者でも理解しやすい構成にしています。
+このデータモデル設計は、Next.js Web アプリのデータ構造を定義します。PoC 版では、Supabase を使用した PostgreSQL データベースモデルを採用し、シンプルかつ拡張性のある構成にしています。
 
-## データコレクション構成（シンプル版）
+## データテーブル構成
 
-### コレクション一覧
+### テーブル一覧
 
-- `users` - ユーザー情報（Firebase Authentication と連携）
+- `users` - ユーザー情報（Supabase Auth と連携）
 - `books` - 書籍データ（メイン機能）
-- `reading_progress` - 読書進捗（シンプルな統計）
+- `reading_history` - 読書履歴（統計・グラフ用）
 
-**注意**: 初心者向けに複雑なコレクションは避け、必要最小限の構成にしています。
+## データ構造（PostgreSQL/Supabase）
 
-## データ構造（初心者向けシンプル版）
+### ユーザーテーブル（users）
 
-### ユーザードキュメント（users コレクション）
+| カラム名     | データ型     | 制約             | 説明                                |
+| ------------ | ------------ | ---------------- | ----------------------------------- |
+| id           | UUID         | PK               | ユーザー ID（Supabase Auth と同期） |
+| email        | VARCHAR(255) | UNIQUE, NOT NULL | メールアドレス                      |
+| display_name | VARCHAR(100) | NULL             | 表示名                              |
+| created_at   | TIMESTAMP    | NOT NULL         | アカウント作成日時                  |
+| updated_at   | TIMESTAMP    | NOT NULL         | 最終更新日時                        |
 
-| フィールド名 | データ型  | 説明                               |
-| ------------ | --------- | ---------------------------------- |
-| id           | String    | ユーザー ID（Firebase Auth と同期） |
-| email        | String    | メールアドレス                     |
-| displayName  | String    | 表示名                             |
-| createdAt    | Timestamp | アカウント作成日                   |
+### 書籍テーブル（books）
 
-### 書籍ドキュメント（books コレクション）
+| カラム名         | データ型     | 制約          | 説明                    |
+| ---------------- | ------------ | ------------- | ----------------------- |
+| id               | UUID         | PK            | 書籍 ID                 |
+| user_id          | UUID         | FK, NOT NULL  | ユーザー ID（外部キー） |
+| title            | VARCHAR(255) | NOT NULL      | 書籍タイトル            |
+| author           | VARCHAR(255) | NOT NULL      | 著者名                  |
+| total_pages      | INTEGER      | NOT NULL      | 総ページ数              |
+| current_page     | INTEGER      | DEFAULT 0     | 現在のページ            |
+| is_completed     | BOOLEAN      | DEFAULT FALSE | 完読フラグ              |
+| start_date       | TIMESTAMP    | NOT NULL      | 読書開始日時            |
+| last_update_date | TIMESTAMP    | NOT NULL      | 最終更新日時            |
+| cover_image_url  | VARCHAR(512) | NULL          | 表紙画像 URL（任意）    |
+| memo             | TEXT         | NULL          | メモ（任意）            |
 
-| フィールド名   | データ型  | 説明                     |
-| -------------- | --------- | ------------------------ |
-| id             | String    | 書籍 ID（自動生成）      |
-| userId         | String    | ユーザー ID（参照キー）  |
-| title          | String    | 書籍タイトル             |
-| author         | String    | 著者名                   |
-| totalPages     | Number    | 総ページ数               |
-| currentPage    | Number    | 現在のページ             |
-| isCompleted    | Boolean   | 完読フラグ               |
-| startDate      | Timestamp | 読書開始日               |
-| lastUpdateDate | Timestamp | 最終更新日               |
-| memo           | String    | メモ（オプション）       |
+### 読書履歴テーブル（reading_history）
 
-### 読書進捗ドキュメント（reading_progress コレクション）
+| カラム名   | データ型  | 制約         | 説明                    |
+| ---------- | --------- | ------------ | ----------------------- |
+| id         | UUID      | PK           | 履歴 ID                 |
+| book_id    | UUID      | FK, NOT NULL | 書籍 ID（外部キー）     |
+| user_id    | UUID      | FK, NOT NULL | ユーザー ID（外部キー） |
+| pages_read | INTEGER   | NOT NULL     | 読了ページ数            |
+| read_date  | DATE      | NOT NULL     | 読書日                  |
+| created_at | TIMESTAMP | NOT NULL     | 記録作成日時            |
 
-| フィールド名   | データ型 | 説明                    |
-| -------------- | -------- | ----------------------- |
-| id             | String   | 進捗 ID（自動生成）     |
-| userId         | String   | ユーザー ID（参照キー） |
-| totalBooks     | Number   | 登録書籍総数            |
-| completedBooks | Number   | 完読した書籍数          |
-| totalPages     | Number   | 総読了ページ数          |
-| lastUpdated    | Timestamp| 最終更新日              |
+## サンプルデータ
 
-## サンプルデータ（初心者向け）
+### 書籍データ例（SQL 挿入文）
 
-### 書籍データ例
-
-```json
-{
-  "id": "book_001",
-  "userId": "user_123",
-  "title": "JavaScript の基本",
-  "author": "田中花子",
-  "totalPages": 200,
-  "currentPage": 45,
-  "isCompleted": false,
-  "startDate": "2024-05-01T09:00:00Z",
-  "lastUpdateDate": "2024-05-15T14:30:00Z",
-  "memo": "関数の章が難しい"
-}
+```sql
+INSERT INTO books (id, user_id, title, author, total_pages, current_page, is_completed,
+                  start_date, last_update_date, cover_image_url, memo)
+VALUES
+(
+  'e7c8a8c5-1d4f-4b3c-9c8b-8c7f1a2b3c4d',
+  '9f8e7d6c-5b4a-3f2e-1d0c-9b8a7f6e5d4c',
+  'JavaScript入門 - モダンプログラミング',
+  '山田太郎',
+  324,
+  156,
+  FALSE,
+  '2024-05-01 09:00:00',
+  '2024-05-15 14:30:00',
+  'https://example.com/covers/js-intro.jpg',
+  '第8章が特に重要。再読する必要あり。'
+);
 ```
 
-### ユーザーデータ例
+### 読書履歴データ例（SQL 挿入文）
 
-```json
-{
-  "id": "user_123",
-  "email": "user@example.com",
-  "displayName": "山田太郎",
-  "createdAt": "2024-05-01T08:00:00Z"
-}
+```sql
+INSERT INTO reading_history (id, book_id, user_id, pages_read, read_date, created_at)
+VALUES
+(
+  '1a2b3c4d-5e6f-7g8h-9i0j-1k2l3m4n5o6p',
+  'e7c8a8c5-1d4f-4b3c-9c8b-8c7f1a2b3c4d',
+  '9f8e7d6c-5b4a-3f2e-1d0c-9b8a7f6e5d4c',
+  25,
+  '2024-05-15',
+  '2024-05-15 14:30:00'
+);
 ```
 
-### 読書進捗データ例
+## Supabase セキュリティ設定（Row Level Security）
 
-```json
-{
-  "id": "progress_001",
-  "userId": "user_123",
-  "totalBooks": 3,
-  "completedBooks": 1,
-  "totalPages": 89,
-  "lastUpdated": "2024-05-15T14:30:00Z"
-}
+```sql
+-- 書籍テーブルのセキュリティ設定
+ALTER TABLE books ENABLE ROW LEVEL SECURITY;
+
+-- ユーザーは自分の書籍のみ閲覧・編集可能
+CREATE POLICY books_user_policy ON books
+    USING (auth.uid() = user_id)
+    WITH CHECK (auth.uid() = user_id);
+
+-- 読書履歴のセキュリティ設定
+ALTER TABLE reading_history ENABLE ROW LEVEL SECURITY;
+
+-- ユーザーは自分の読書履歴のみ閲覧・編集可能
+CREATE POLICY reading_history_user_policy ON reading_history
+    USING (auth.uid() = user_id)
+    WITH CHECK (auth.uid() = user_id);
 ```
 
-## Firestore セキュリティルール（シンプル版）
-
-```javascript
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    // ユーザーは自分のデータのみアクセス可能（基本的なルール）
-    match /users/{userId} {
-      allow read, write: if request.auth.uid == userId;
-    }
+match /databases/{database}/documents {
+// ユーザーは自分のデータのみアクセス可能（基本的なルール）
+match /users/{userId} {
+allow read, write: if request.auth.uid == userId;
+}
 
     // 書籍は所有者のみアクセス可能
     match /books/{bookId} {
@@ -116,8 +126,10 @@ service cloud.firestore {
       allow read, write: if request.auth.uid == resource.data.userId;
       allow create: if request.auth.uid == request.resource.data.userId;
     }
-  }
+
 }
+}
+
 ```
 
 ## 初心者向けデータ操作の基本
@@ -141,3 +153,4 @@ service cloud.firestore {
 - **エクスポート機能**: ユーザーデータの CSV ダウンロード（将来実装）
 
 <!-- Generated by Copilot -->
+```

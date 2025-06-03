@@ -1,4 +1,4 @@
-# 技術選定（PoC 版 - Web アプリ / 初心者向けシンプル構成）
+# 技術選定（Page Tracker - PoC 版）
 
 ## プログラミング言語
 
@@ -8,46 +8,52 @@
 
 ## フレームワーク
 
-- **React**: 初心者向けのコンポーネントベース Web ライブラリ（学習コストが低い）
-- **Create React App**: 複雑な設定不要で即座に開発開始可能（初心者に最適）
+- **Next.js**: React ベースのフルスタックフレームワーク（SSR, SSG 対応）
+- **Tailwind CSS**: ユーティリティファーストの CSS フレームワーク
 
-## ライブラリ（PoC 必須）
+## ライブラリ（必須）
 
-- **React Router**: Web ページ間の移動管理（シンプルなルーティング）
-- **Firebase**: Google が提供するクラウドサービス（設定が簡単）
-  - Firebase Authentication: ユーザーログイン機能
-  - Cloud Firestore: データベース（SQL 知識不要）
-- **CSS**: 標準的なスタイリング（複雑なライブラリは使用しない）
+- **React Router**: タブ切り替えと画面遷移管理
+- **React Icons**: シンプルで使いやすいアイコンライブラリ
+- **Supabase Client**: データベースとの連携
+- **CSS Variables/Tailwind Themeing**: テーマ切替のための CSS 変数活用
 
-## ライブラリ（オプション・必要に応じて）
+## ライブラリ（必須/グラフ表示）
 
-- **Bootstrap**: シンプルな UI デザインフレームワーク（CSS のみ使用）
-- **React Bootstrap**: Bootstrap の React 版コンポーネント（学習しやすい）
+- **Chart.js/Recharts**: 読書進捗をグラフで視覚化
 
-## 設計・アーキテクチャ（シンプル重視）
+## 認証・データ管理
 
-- **基本的なファイル構成**:
-  - src/components/ (再利用コンポーネント)
-  - src/pages/ (ページごとのファイル)
-  - src/App.js (メインアプリファイル)
-- **React の基本機能のみ使用**: useState, useEffect の基本的な使い方
-- **シンプルな CSS**: 外部ファイルによる基本的なスタイリング
-- **段階的な学習**: 最初は基本機能のみ実装し、徐々に機能追加
+- **Supabase Authentication**: 簡易認証システム
+- **Supabase Database**: PostgreSQL ベースのデータ管理
 
-## データ保存（シンプル構成）
+## 設計・アーキテクチャ
 
-- **Cloud Firestore**: Firebase のデータベース（SQL 不要、設定簡単）
-- **Firebase Authentication**: ユーザー認証（Google, メール認証）
-- **localStorage**: ブラウザの基本的なデータ保存機能
+- **ファイル構成**:
+  - src/components/ - BookCard 等の再利用コンポーネント
+  - src/pages/ - HomePage、BookListPage、AddBookPage の画面
+  - src/services/ - bookService（データ操作）、後々の firebaseService
+  - src/App.js - ルーティングとテーマ管理
+  - src/App.css - テーマカラー変数と全体スタイリング
+- **React フック**: useState, useEffect を活用した状態管理
+- **CSS 変数**: テーマカラーは CSS 変数で一元管理（ダークモード対応）
+- **レスポンシブデザイン**: モバイルファースト設計
 
-## 開発ツール（Windows 対応）
+## データ保存
 
-- **Visual Studio Code**: Windows で人気の無料エディタ（拡張機能豊富）
-- **npm**: Node.js 付属のパッケージ管理ツール
-- **Chrome ブラウザ**: 開発者向け機能が充実
-- **Firebase Console**: ブラウザで Firebase を管理
-- **Git for Windows**: バージョン管理（GitHub Desktop も使用可能）
-- **Windows Terminal**: Windows のターミナル（PowerShell 使用）
+- **Supabase**: クラウドデータベースで進捗データを管理
+  - 書籍データの保存（PostgreSQL 形式）
+  - ユーザー認証・管理
+  - バックアップと同期
+- **localStorage**: オフライン用キャッシュとテーマ設定の保持
+
+## 開発ツール
+
+- **Visual Studio Code**: 拡張機能を活用した効率的な開発
+- **npm**: React アプリの依存関係管理
+- **Chrome DevTools**: レスポンシブデザインとローカルストレージのテスト
+- **Git/GitHub**: バージョン管理と機能ブランチ管理
+- **Windows/Mac 対応**: クロスプラットフォーム開発
 
 ## 開発ルール（初心者向け）
 
@@ -63,31 +69,31 @@
 - **レスポンシブ確認**: スマートフォンサイズでの表示確認
 - **友人・家族でのテスト**: 実際のユーザー目線での確認
 
-## リリース方法（PoC 版 - 初心者向け）
+## リリース方法（PoC 版）
 
-- **Firebase Hosting**: 無料で簡単に Web サイト公開（コマンド一つでデプロイ）
-- **Netlify**: ドラッグ&ドロップでデプロイ可能（GitHub 連携も簡単）
-- **URL 共有**: 家族や友人に簡単にシェアしてフィードバック取得
+- **GitHub Pages**: 無料ホスティングによるデモ公開
+- **Netlify/Vercel**: CI/CD パイプラインによる自動デプロイ
+- **ブラウザサポート**: モダンブラウザ対応（Chrome, Firefox, Safari, Edge）
 
-## 学習段階的アプローチ
+## 開発フェーズ
 
-### 第 1 段階（基本）
+### フェーズ 1: 基本機能実装
 
-- **HTML/CSS/JavaScript の基礎**: Web 開発の基本を理解
-- **React の基本**: コンポーネント、props、state の理解
-- **Firebase の基本**: アカウント作成、プロジェクト設定
+- **基本 UI 構築**: タブ構成の基本レイアウト実装
+- **データモデル**: Supabase でのデータ設計
+- **基本機能**: 書籍追加、進捗更新、一覧表示
 
-### 第 2 段階（機能実装）
+### フェーズ 2（機能実装）
 
-- **ページ遷移**: React Router の基本的な使い方
-- **ユーザー認証**: Firebase Authentication の実装
-- **データ保存**: Firestore での基本的な CRUD 操作
+- **統計機能**: 累計読了ページ数などの集計機能
+- **ユーザー認証**: Supabase Authentication の実装
+- **データ保存**: PostgreSQL での基本的な CRUD 操作
 
-### 第 3 段階（改善・拡張）
+### フェーズ 3（改善・拡張）
 
-- **UI 改善**: Bootstrap を使った見た目の向上
-- **エラーハンドリング**: 基本的なエラー処理の実装
-- **パフォーマンス改善**: 基本的な最適化
+- **UI 改善**: Tailwind を使った見た目の向上
+- **エラーハンドリング**: バリデーションとエラー処理の実装
+- **パフォーマンス改善**: データ読み込みの最適化
 
 ## 将来的な拡張オプション（段階的に追加）
 
