@@ -172,117 +172,323 @@ body {
 /* 書籍カード */
 .books-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 2rem;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
 }
 
 .book-card {
   background-color: var(--card-bg-color);
-  border-radius: 8px;
+  border-radius: 12px;
   box-shadow: var(--card-shadow);
   padding: 1.5rem;
-  transition: transform 0.2s, background-color 0.3s, box-shadow 0.3s;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 180px;
+  overflow: hidden;
+  border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 .book-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  border-color: var(--button-primary-hover);
+}
+
+.book-card::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 4px;
+  width: 100%;
+  background: linear-gradient(
+    to right,
+    var(--button-primary),
+    var(--button-primary-hover)
+  );
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s ease;
+}
+
+.book-card:hover::before {
+  transform: scaleX(1);
 }
 
 .book-title {
   font-size: 1.25rem;
-  margin: 0 0 0.5rem;
-  color: var(--title-color);
-}
-
-.book-author {
-  color: #7f8c8d;
   margin: 0 0 1rem;
-}
-
-.book-status {
-  display: inline-block;
-  padding: 0.25rem 0.75rem;
-  border-radius: 50px;
-  font-size: 0.8rem;
-  font-weight: bold;
-  margin-bottom: 1rem;
-}
-
-.status-reading {
-  background-color: var(--status-reading);
-  color: white;
-}
-
-.status-completed {
-  background-color: var(--status-completed);
-  color: white;
+  color: var(--title-color);
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
 }
 
 .book-progress {
-  margin-bottom: 1rem;
+  margin-top: auto;
+}
+
+.book-progress p {
+  display: flex;
+  justify-content: space-between;
+  margin: 0.5rem 0;
+  font-size: 0.9rem;
+  color: var(--muted-text);
 }
 
 .progress-bar {
-  height: 8px;
+  height: 10px;
   background-color: var(--progress-bar-bg);
-  border-radius: 4px;
+  border-radius: 5px;
   overflow: hidden;
-  margin-top: 0.5rem;
+  margin-bottom: 0.75rem;
 }
 
 .progress-fill {
   height: 100%;
-  background-color: var(--progress-bar-fill);
-  border-radius: 4px;
-  transition: width 0.3s, background-color 0.3s;
+  background: linear-gradient(
+    to right,
+    var(--button-primary),
+    var(--button-primary-hover)
+  );
+  border-radius: 5px;
+  transition: width 0.3s ease;
+}
+
+/* 最小限表示用のステータスインジケーター */
+.book-status-indicator {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  padding: 0.35rem 0.6rem;
+  border-radius: 20px;
+  font-size: 0.7rem;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease;
+}
+
+.book-card:hover .book-status-indicator {
+  transform: scale(1.05);
+}
+
+.book-status-indicator.status-reading {
+  background-color: var(--status-reading);
+  color: white;
+}
+
+.book-status-indicator.status-completed {
+  background-color: var(--status-completed);
+  color: white;
+}
+
+/* 詳細ポップアップのスタイル */
+.book-details-popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(3px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  overflow-y: auto;
+  padding: 1.5rem;
+}
+
+.book-details-popup {
+  background-color: var(--card-bg-color);
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  padding: 2.5rem;
+  max-width: 550px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  animation: popup-fade-in 0.3s ease;
+}
+
+@keyframes popup-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.close-popup-btn {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: var(--text-color);
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.close-popup-btn:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+  transform: rotate(90deg);
+}
+
+.book-details-popup .book-title {
+  font-size: 1.75rem;
+  margin: 0 0 0.75rem;
+  color: var(--title-color);
+  border-bottom: 1px solid var(--input-border);
+  padding-bottom: 0.75rem;
+  line-height: 1.3;
+}
+
+.book-details-popup .book-author {
+  font-size: 1.1rem;
+  margin: 0 0 1.5rem;
+  color: var(--subtitle-color);
+}
+
+.book-details-popup .book-status {
+  display: inline-block;
+  padding: 0.4rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: bold;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.book-details-popup .book-status.status-reading {
+  background-color: var(--status-reading);
+  color: white;
+}
+
+.book-details-popup .book-status.status-completed {
+  background-color: var(--status-completed);
+  color: white;
+}
+
+.book-details-popup .book-progress {
+  margin-bottom: 1.5rem;
+}
+
+.book-details-popup .book-progress p {
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.book-details-popup .progress-bar {
+  height: 12px;
+  margin-bottom: 1.5rem;
 }
 
 .book-dates {
-  margin-bottom: 1rem;
+  background-color: var(--memo-bg);
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+}
+
+.book-dates p {
+  margin: 0.25rem 0;
 }
 
 .text-muted {
   color: var(--muted-text);
-  font-size: 0.85rem;
-  margin: 0.2rem 0;
+  font-size: 0.9rem;
 }
 
 .progress-update {
-  margin-top: 1rem;
   margin-bottom: 1.5rem;
+}
+
+.progress-update label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: bold;
 }
 
 .progress-input {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
 }
 
 .progress-input input {
-  width: 60px;
-  padding: 0.25rem;
-  border: 1px solid #ddd;
+  width: 80px;
+  padding: 0.5rem;
+  border: 1px solid var(--input-border);
   border-radius: 4px;
+  background-color: var(--form-bg);
+  color: var(--text-color);
+  font-size: 1rem;
+  margin-right: 0.5rem;
 }
 
 .book-memo {
   background-color: var(--memo-bg);
   padding: 1rem;
-  border-radius: 4px;
-  margin: 1rem 0;
-  transition: background-color 0.3s;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+}
+
+.book-memo strong {
+  display: block;
+  margin-bottom: 0.5rem;
 }
 
 .book-memo p {
-  margin: 0.5rem 0 0;
+  margin: 0;
+  white-space: pre-line;
+  line-height: 1.5;
 }
 
-.book-actions {
-  margin-top: 1rem;
+.book-details-popup .book-actions {
   display: flex;
+  gap: 0.75rem;
+  margin-top: 2rem;
   justify-content: flex-end;
 }
+
+/* レスポンシブ対応 */
+@media (max-width: 600px) {
+  .book-details-popup {
+    padding: 1.5rem;
+    border-radius: 12px;
+  }
+
+  .book-details-popup .book-title {
+    font-size: 1.5rem;
+  }
+}
+
+/* ダークモード対応 */
+.dark-mode .book-details-popup-overlay {
+  background-color: rgba(0, 0, 0, 0.8);
+}
+
+/* 既存のスタイルは残します */
 
 /* ボタン */
 .btn {
