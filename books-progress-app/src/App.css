@@ -503,6 +503,13 @@ body {
   transition: background-color 0.2s, transform 0.1s;
 }
 
+/* テーマアイコンのスタイル */
+.theme-icon {
+  width: 24px;
+  height: 24px;
+  color: white;
+}
+
 .theme-toggle:hover {
   background-color: var(--button-secondary-hover);
 }
