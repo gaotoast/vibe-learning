@@ -881,3 +881,54 @@ body {
   --footer-color: #6b9ac4;
   --memo-bg: #f9f9f9;
 }
+
+/* 書籍ページコントロールボタン */
+.page-control-btn {
+  background-color: var(--button-primary);
+  color: white;
+  border: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 4px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s, opacity 0.2s;
+}
+
+.page-decrement-btn {
+  margin-right: 0.5rem;
+}
+
+.page-increment-btn {
+  margin-left: 0.5rem;
+  margin-right: 0.5rem;
+}
+
+.page-control-btn:hover {
+  background-color: var(--button-primary-hover);
+}
+
+.page-control-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.progress-input {
+  display: flex;
+  align-items: center;
+}
+
+.progress-input input {
+  width: 70px;
+  padding: 0.5rem;
+  border: 1px solid var(--input-border);
+  border-radius: 4px;
+  background-color: var(--form-bg);
+  color: var(--text-color);
+  font-size: 1rem;
+  text-align: center;
+}
