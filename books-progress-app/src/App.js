@@ -13,9 +13,10 @@ import "./components/AuthStyles.css";
 
 // ページコンポーネントをインポート
 import HomePage from "./pages/HomePage";
-import BookListPage from "./pages/BookListPage";
+import StatisticsPage from "./pages/StatisticsPage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
+import AboutPage from "./pages/AboutPage";
 
 // Firebase認証関連のインポート
 import {
@@ -103,11 +104,22 @@ function App() {
     <Router>
       <div className="App">
         <header className="header">
+          {" "}
           <nav className="nav">
-            <h1>Page Tracker</h1>
+            <h1>
+              <NavLink to="/" className="app-title-link">
+                Page Tracker
+              </NavLink>
+            </h1>
             <div className="nav-links">
               {user && (
                 <>
+                  <NavLink
+                    to="/"
+                    className={({ isActive }) => (isActive ? "active" : "")}
+                  >
+                    書籍リスト
+                  </NavLink>
                   <NavLink
                     to="/stats"
                     className={({ isActive }) => (isActive ? "active" : "")}
@@ -115,10 +127,10 @@ function App() {
                     統計
                   </NavLink>
                   <NavLink
-                    to="/"
+                    to="/about"
                     className={({ isActive }) => (isActive ? "active" : "")}
                   >
-                    書籍リスト
+                    サービス概要
                   </NavLink>
                 </>
               )}
@@ -159,13 +171,13 @@ function App() {
             {/* 公開ルート */}
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
-
-            {/* 保護されたルート */}
+            <Route path="/about" element={<AboutPage />} />
+            {/* 保護されたルート */}{" "}
             <Route
               path="/stats"
               element={
                 <ProtectedRoute>
-                  <HomePage />
+                  <StatisticsPage />
                 </ProtectedRoute>
               }
             />
@@ -173,11 +185,10 @@ function App() {
               path="/"
               element={
                 <ProtectedRoute>
-                  <BookListPage />
+                  <HomePage />
                 </ProtectedRoute>
               }
             />
-
             {/* リダイレクト */}
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
