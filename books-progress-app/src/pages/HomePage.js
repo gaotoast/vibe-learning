@@ -101,15 +101,83 @@ const HomePage = () => {
   // 書籍リスト（フィルタリングなし）
   const filteredBooks = books;
 
+  // プラスボタンの処理（総ページ数）
+  const handleIncrementTotalPages = () => {
+    const currentValue =
+      formData.totalPages === "" || formData.totalPages === 0
+        ? 0
+        : parseInt(formData.totalPages, 10);
+    const newValue = currentValue + 1;
+    setFormData({
+      ...formData,
+      totalPages: newValue,
+    });
+  };
+
+  // マイナスボタンの処理（総ページ数）
+  const handleDecrementTotalPages = () => {
+    const currentValue =
+      formData.totalPages === "" || formData.totalPages === 0
+        ? 0
+        : parseInt(formData.totalPages, 10);
+    // 1より小さくならないようにする
+    const newValue = Math.max(1, currentValue - 1);
+    setFormData({
+      ...formData,
+      totalPages: newValue,
+    });
+  };
+
+  // プラスボタンの処理（現在のページ）
+  const handleIncrementCurrentPage = () => {
+    const currentValue =
+      formData.currentPage === "" || formData.currentPage === 0
+        ? 0
+        : parseInt(formData.currentPage, 10);
+    const totalPages =
+      formData.totalPages === "" || formData.totalPages === 0
+        ? 0
+        : parseInt(formData.totalPages, 10);
+    // 総ページ数より大きくならないようにする
+    const newValue = Math.min(currentValue + 1, totalPages);
+    setFormData({
+      ...formData,
+      currentPage: newValue,
+    });
+  };
+
+  // マイナスボタンの処理（現在のページ）
+  const handleDecrementCurrentPage = () => {
+    const currentValue =
+      formData.currentPage === "" || formData.currentPage === 0
+        ? 0
+        : parseInt(formData.currentPage, 10);
+    // 0より小さくならないようにする
+    const newValue = Math.max(0, currentValue - 1);
+    setFormData({
+      ...formData,
+      currentPage: newValue,
+    });
+  };
+
   // フォーム入力変更ハンドラー
   const handleInputChange = (e) => {
     const { name, value } = e.target;
 
-    // 数値型のフィールドの場合は数値に変換
-    const processedValue =
-      name === "totalPages" || name === "currentPage"
-        ? parseInt(value, 10) || 0
-        : value;
+    let processedValue = value;
+
+    if (name === "totalPages" || name === "currentPage") {
+      // 空文字列の場合はそのまま（削除操作を許可するため）
+      if (value === "") {
+        processedValue = 0;
+      } else {
+        // 数値以外の文字を除去
+        const numericValue = value.replace(/[^\d]/g, "");
+
+        // 数値に変換
+        processedValue = numericValue ? parseInt(numericValue, 10) : 0;
+      }
+    }
 
     setFormData({
       ...formData,
@@ -267,16 +335,39 @@ const HomePage = () => {
             <label htmlFor="totalPages">
               総ページ数 <span className="required">*</span>
             </label>
-            <input
-              type="number"
-              id="totalPages"
-              name="totalPages"
-              value={formData.totalPages}
-              onChange={handleInputChange}
-              min="1"
-              className={formErrors.totalPages ? "error" : ""}
-              disabled={isSubmitting}
-            />
+            <div className="progress-input">
+              <button
+                type="button"
+                className="page-control-btn page-decrement-btn"
+                onClick={handleDecrementTotalPages}
+                disabled={
+                  !formData.totalPages ||
+                  formData.totalPages <= 1 ||
+                  isSubmitting
+                }
+              >
+                －
+              </button>
+              <input
+                type="text"
+                id="totalPages"
+                name="totalPages"
+                value={formData.totalPages}
+                onChange={handleInputChange}
+                inputMode="numeric"
+                className={formErrors.totalPages ? "error" : ""}
+                disabled={isSubmitting}
+                placeholder="0"
+              />
+              <button
+                type="button"
+                className="page-control-btn page-increment-btn"
+                onClick={handleIncrementTotalPages}
+                disabled={isSubmitting}
+              >
+                ＋
+              </button>
+            </div>
             {formErrors.totalPages && (
               <p className="error-text">{formErrors.totalPages}</p>
             )}
@@ -284,17 +375,45 @@ const HomePage = () => {
 
           <div className="form-group">
             <label htmlFor="currentPage">現在のページ</label>
-            <input
-              type="number"
-              id="currentPage"
-              name="currentPage"
-              value={formData.currentPage}
-              onChange={handleInputChange}
-              min="0"
-              max={formData.totalPages}
-              className={formErrors.currentPage ? "error" : ""}
-              disabled={isSubmitting}
-            />
+            <div className="progress-input">
+              <button
+                type="button"
+                className="page-control-btn page-decrement-btn"
+                onClick={handleDecrementCurrentPage}
+                disabled={
+                  !formData.currentPage ||
+                  formData.currentPage <= 0 ||
+                  isSubmitting
+                }
+              >
+                －
+              </button>
+              <input
+                type="text"
+                id="currentPage"
+                name="currentPage"
+                value={formData.currentPage}
+                onChange={handleInputChange}
+                inputMode="numeric"
+                className={formErrors.currentPage ? "error" : ""}
+                disabled={isSubmitting}
+                placeholder="0"
+              />
+              <button
+                type="button"
+                className="page-control-btn page-increment-btn"
+                onClick={handleIncrementCurrentPage}
+                disabled={
+                  !formData.totalPages ||
+                  (formData.currentPage !== 0 &&
+                    formData.currentPage >= formData.totalPages) ||
+                  isSubmitting
+                }
+              >
+                ＋
+              </button>
+              {formData.totalPages > 0 && <span>/ {formData.totalPages}</span>}
+            </div>
             {formErrors.currentPage && (
               <p className="error-text">{formErrors.currentPage}</p>
             )}

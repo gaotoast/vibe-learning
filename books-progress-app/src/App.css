@@ -23,7 +23,7 @@
   --progress-bar-fill: #84b4e0;
   --muted-text: #95a5a6;
   --form-bg: #ffffff;
-  --input-border: #ddd;
+  --input-border: #aaaaaa;
   --success-bg: #d4edda;
   --success-text: #155724;
   --error-bg: #f8d7da;
@@ -140,11 +140,6 @@ body {
   color: white;
   text-decoration: none;
   font-weight: bold;
-  transition: opacity 0.2s;
-}
-
-.app-title-link:hover {
-  opacity: 0.9;
 }
 
 .nav-links {
@@ -292,11 +287,7 @@ body {
 
 .progress-fill {
   height: 100%;
-  background: linear-gradient(
-    to right,
-    var(--button-primary),
-    var(--button-primary-hover)
-  );
+  background: var(--progress-bar-fill);
   border-radius: 5px;
   transition: width 0.3s ease;
 }
@@ -385,13 +376,7 @@ body {
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  transition: all 0.2s ease;
   background-color: rgba(0, 0, 0, 0.05);
-}
-
-.close-popup-btn:hover {
-  background-color: rgba(0, 0, 0, 0.1);
-  transform: rotate(90deg);
 }
 
 .book-details-popup .book-title {
@@ -689,7 +674,7 @@ body {
 .form-group textarea {
   width: 100%;
   padding: 0.75rem;
-  border: 1px solid var(--input-border);
+  border: 2px solid #777777;
   border-radius: 4px;
   font-size: 1rem;
   box-sizing: border-box;
@@ -698,18 +683,34 @@ body {
   transition: border-color 0.3s, background-color 0.3s, color 0.3s;
 }
 
-/* 数値入力フィールドのスタイル調整 */
-input[type="number"] {
-  -moz-appearance: textfield; /* Firefox で上下矢印を表示 */
-  appearance: auto; /* デフォルトの数値入力スタイルを保持 */
+.form-group input:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: var(--button-primary);
+  box-shadow: 0 0 0 2px rgba(132, 180, 224, 0.4);
 }
 
-/* Chrome, Safari, Edge, Opera で上下矢印を明確に表示 */
+.form-group input[type="number"] {
+  width: 100%;
+  font-size: 1rem;
+  font-weight: normal;
+}
+
+/* 数値入力フィールドのスタイル調整 */
+input[type="number"] {
+  /* 上下矢印を非表示にする */
+  -moz-appearance: textfield;
+  appearance: textfield;
+  text-align: left;
+  padding-right: 0;
+}
+
+/* Chrome, Safari, Edge, Opera での上下矢印を非表示 */
 input[type="number"]::-webkit-inner-spin-button,
 input[type="number"]::-webkit-outer-spin-button {
-  opacity: 1;
-  height: 30px;
-  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+  margin: 0;
 }
 
 .form-group input.error,
@@ -975,7 +976,17 @@ input[type="number"]::-webkit-outer-spin-button {
   background-color: var(--form-bg);
   color: var(--text-color);
   font-size: 1rem;
-  text-align: center;
+  text-align: left;
+  /* 上下矢印を非表示 */
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+.progress-input input::-webkit-inner-spin-button,
+.progress-input input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  appearance: none;
+  margin: 0;
 }
 
 /* 統計グラフのスタイル */
@@ -1084,11 +1095,6 @@ input[type="number"]::-webkit-outer-spin-button {
   color: inherit;
   text-decoration: none;
   transition: color 0.2s;
-}
-
-.app-title-link:hover {
-  color: #ffffff;
-  text-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
 }
 
 /* 新しい統計レイアウト */

@@ -18,19 +18,33 @@ const AddBookPage = () => {
   const [errors, setErrors] = useState({});
 
   // 送信中の状態
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  // 成功メッセージの状態
+  const [isSubmitting, setIsSubmitting] = useState(false); // 成功メッセージの状態
   const [success, setSuccess] = useState("");
+
   // フォーム入力変更ハンドラー
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
-
-    // 数値型のフィールドの場合は数値に変換（空の文字列の場合は変換しない）
+    const { name, value } = e.target; // 数値型のフィールドの場合は数値に変換（空の文字列の場合は変換しない）
     let processedValue = value;
 
-    if ((name === "totalPages" || name === "currentPage") && value !== "") {
-      processedValue = parseInt(value, 10);
+    if (name === "totalPages" || name === "currentPage") {
+      // 空文字列の場合はそのまま（削除操作を許可するため）
+      if (value === "") {
+        processedValue = "";
+      } else {
+        // 数値以外の文字を除去
+        const numericValue = value.replace(/[^\d]/g, "");
+
+        // 先頭の不要な0を削除（ただし、0単体の場合は許可）
+        if (numericValue === "0") {
+          processedValue = "0";
+        } else if (numericValue !== "") {
+          // 0以外の数値の場合は先頭の0を削除
+          processedValue = numericValue.replace(/^0+/, "");
+        } else {
+          // 数値以外の文字だけだった場合は空にする
+          processedValue = "";
+        }
+      }
     }
 
     setFormData({
@@ -40,31 +54,28 @@ const AddBookPage = () => {
   };
   // フォーム送信ハンドラー
   const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    // 送信前に値を適切に数値変換
-    const submitData = {
-      ...formData,
-      totalPages:
-        formData.totalPages === "" ? 0 : parseInt(formData.totalPages, 10),
-      currentPage:
-        formData.currentPage === "" ? 0 : parseInt(formData.currentPage, 10),
-    };
-
-    // バリデーション
+    e.preventDefault(); // バリデーション
     const newErrors = {};
 
-    if (!submitData.title.trim()) {
+    if (!formData.title.trim()) {
       newErrors.title = "タイトルは必須です";
     }
 
-    if (!submitData.author.trim()) {
+    if (!formData.author.trim()) {
       newErrors.author = "著者名は必須です";
     }
 
-    if (submitData.totalPages <= 0) {
+    // 総ページ数の検証：未入力または0の場合はエラー
+    if (formData.totalPages === "" || formData.totalPages === "0") {
       newErrors.totalPages = "有効なページ数を入力してください";
     }
+
+    // 送信前に値を適切に数値変換（バリデーション後に行う）
+    const submitData = {
+      ...formData,
+      totalPages: parseInt(formData.totalPages, 10) || 0,
+      currentPage: parseInt(formData.currentPage, 10) || 0,
+    };
 
     if (submitData.currentPage < 0) {
       newErrors.currentPage = "現在のページは0以上である必要があります";
@@ -88,8 +99,10 @@ const AddBookPage = () => {
       // 送信前に確実に数値に変換したデータを使用
       const bookData = {
         ...formData,
-        totalPages: parseInt(formData.totalPages, 10) || 0,
-        currentPage: parseInt(formData.currentPage, 10) || 0,
+        totalPages: formData.totalPages ? parseInt(formData.totalPages, 10) : 0,
+        currentPage: formData.currentPage
+          ? parseInt(formData.currentPage, 10)
+          : 0,
       };
 
       // BookServiceを使用して書籍を追加（非同期処理）
@@ -168,19 +181,18 @@ const AddBookPage = () => {
               disabled={isSubmitting}
             />
             {errors.author && <p className="error-text">{errors.author}</p>}
-          </div>{" "}
+          </div>
           <div className="form-group">
             <label htmlFor="totalPages">
               総ページ数 <span className="required">*</span>
             </label>
             <input
-              type="number"
+              type="text"
               id="totalPages"
               name="totalPages"
               value={formData.totalPages}
               onChange={handleInputChange}
-              min="1"
-              step="1"
+              inputMode="numeric"
               placeholder="ページ数を入力"
               className={errors.totalPages ? "error" : ""}
               disabled={isSubmitting}
@@ -188,18 +200,16 @@ const AddBookPage = () => {
             {errors.totalPages && (
               <p className="error-text">{errors.totalPages}</p>
             )}
-          </div>{" "}
+          </div>
           <div className="form-group">
             <label htmlFor="currentPage">現在のページ</label>
             <input
-              type="number"
+              type="text"
               id="currentPage"
               name="currentPage"
               value={formData.currentPage}
               onChange={handleInputChange}
-              min="0"
-              max={formData.totalPages}
-              step="1"
+              inputMode="numeric"
               placeholder="現在のページ数を入力"
               className={errors.currentPage ? "error" : ""}
               disabled={isSubmitting}
