@@ -10,7 +10,6 @@ const StatisticsPage = () => {
     inProgressBooks: 0,
     totalPages: 0,
     readPages: 0,
-    recordDays: 0, // 累計記録日数
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -22,22 +21,10 @@ const StatisticsPage = () => {
       try {
         const result = await getReadingStats();
         if (result.success) {
-          // 累計記録日数を計算（仮の実装 - 実際のデータによって調整が必要）
           const baseStats = result.stats;
           console.log("読書統計データ:", baseStats); // デバッグログ
 
-          // 書籍データから最初の記録日と最後の記録日を取得
-          const now = new Date();
-          const oneDay = 24 * 60 * 60 * 1000; // ミリ秒単位の1日
-
-          // アプリ使用日数を10日と仮定（実際のデータがないため）
-          // 実際には書籍のstartDateから計算するロジックが必要
-          const recordDays = 10;
-
-          setStats({
-            ...baseStats,
-            recordDays,
-          });
+          setStats(baseStats);
 
           setError("");
         } else {
@@ -56,12 +43,11 @@ const StatisticsPage = () => {
 
     loadStats();
   }, []);
-
-  // 進捗率の計算
-  const completionRate =
-    stats.totalBooks > 0
-      ? Math.round((stats.completedBooks / stats.totalBooks) * 100)
-      : 0;
+  // 進捗率の計算（将来的な機能拡張用）
+  // const completionRate =
+  //   stats.totalBooks > 0
+  //     ? Math.round((stats.completedBooks / stats.totalBooks) * 100)
+  //     : 0;
 
   return (
     <div>
@@ -89,20 +75,11 @@ const StatisticsPage = () => {
                 <p className="stat-unit">冊</p>
               </div>
             </div>
-
             <div className="stat-column">
               <div className="stat-box">
                 <h3 className="stat-title">合計読了ページ数</h3>
                 <p className="stat-large-value">{stats.readPages}</p>
                 <p className="stat-unit">ページ</p>
-              </div>
-            </div>
-
-            <div className="stat-column">
-              <div className="stat-box">
-                <h3 className="stat-title">累計記録日数</h3>
-                <p className="stat-large-value">{stats.recordDays}</p>
-                <p className="stat-unit">日</p>
               </div>
             </div>
           </div>

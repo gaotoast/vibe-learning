@@ -48,9 +48,7 @@ const LoginPage = () => {
   return (
     <div className="auth-container">
       <h2 className="page-title">ログイン</h2>
-
       {error && <div className="error-message">{error}</div>}
-
       <form onSubmit={handleSubmit} className="auth-form">
         <div className="form-group">
           <label htmlFor="email">メールアドレス</label>
@@ -85,12 +83,13 @@ const LoginPage = () => {
         >
           {loading ? "ログイン中..." : "ログイン"}
         </button>
-      </form>
-
-      <div className="auth-links">
+      </form>{" "}
+      <div className="auth-footnote">
         <p>
           アカウントをお持ちでない方は、
-          <Link to="/register">新規登録</Link>
+          <Link to="/register" className="simple-link">
+            新規登録
+          </Link>
           してください。
         </p>
       </div>

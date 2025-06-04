@@ -54,9 +54,7 @@ const RegisterPage = () => {
   return (
     <div className="auth-container">
       <h2 className="page-title">新規ユーザー登録</h2>
-
       {error && <div className="error-message">{error}</div>}
-
       <form onSubmit={handleSubmit} className="auth-form">
         <div className="form-group">
           <label htmlFor="email">メールアドレス</label>
@@ -104,12 +102,13 @@ const RegisterPage = () => {
         >
           {loading ? "登録中..." : "アカウント登録"}
         </button>
-      </form>
-
-      <div className="auth-links">
+      </form>{" "}
+      <div className="auth-footnote">
         <p>
           すでにアカウントをお持ちの方は、
-          <Link to="/login">ログイン</Link>
+          <Link to="/login" className="simple-link">
+            ログイン
+          </Link>
           してください。
         </p>
       </div>

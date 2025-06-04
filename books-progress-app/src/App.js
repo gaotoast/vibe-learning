@@ -103,66 +103,75 @@ function App() {
   return (
     <Router>
       <div className="App">
+        {" "}
         <header className="header">
-          {" "}
           <nav className="nav">
-            <h1>
-              <NavLink to="/" className="app-title-link">
-                Page Tracker
-              </NavLink>
-            </h1>
-            <div className="nav-links">
-              {user && (
-                <>
-                  <NavLink
-                    to="/"
-                    className={({ isActive }) => (isActive ? "active" : "")}
-                  >
-                    書籍リスト
-                  </NavLink>
-                  <NavLink
-                    to="/stats"
-                    className={({ isActive }) => (isActive ? "active" : "")}
-                  >
-                    統計
-                  </NavLink>
-                  <NavLink
-                    to="/about"
-                    className={({ isActive }) => (isActive ? "active" : "")}
-                  >
-                    サービス概要
-                  </NavLink>
-                </>
-              )}
+            <div className="nav-brand">
+              <h1>
+                <NavLink to="/" className="app-title-link">
+                  Page Tracker
+                </NavLink>
+              </h1>
             </div>
-            {/* 認証状態表示 */}
-            <div className="auth-status">
-              {user ? (
-                <div className="user-info">
-                  <FiUser />
-                  <span className="user-email">{user.email}</span>
-                  <button onClick={handleLogout} className="btn logout-btn">
-                    ログアウト
-                  </button>
-                </div>
-              ) : (
-                !authLoading && (
-                  <div className="auth-links">
+
+            <div className="nav-content">
+              <div className="nav-links">
+                {/* サービス概要は常に表示 */}
+                <NavLink
+                  to="/about"
+                  className={({ isActive }) => (isActive ? "active" : "")}
+                >
+                  サービス概要
+                </NavLink>
+
+                {/* ログイン後のみ表示するリンク */}
+                {user && (
+                  <>
                     <NavLink
-                      to="/login"
+                      to="/"
                       className={({ isActive }) => (isActive ? "active" : "")}
                     >
-                      ログイン
+                      書籍リスト
                     </NavLink>
                     <NavLink
-                      to="/register"
+                      to="/stats"
                       className={({ isActive }) => (isActive ? "active" : "")}
                     >
-                      登録
+                      統計
                     </NavLink>
+                  </>
+                )}
+              </div>
+
+              {/* 認証状態表示 */}
+              <div className="auth-status">
+                {user ? (
+                  <div className="user-info">
+                    <FiUser className="user-icon" />
+                    <span className="user-email">{user.email}</span>
+                    <button onClick={handleLogout} className="btn logout-btn">
+                      ログアウト
+                    </button>
                   </div>
-                )
-              )}
+                ) : (
+                  !authLoading && (
+                    <div className="auth-links">
+                      <NavLink
+                        to="/login"
+                        className={({ isActive }) => (isActive ? "active" : "")}
+                      >
+                        ログイン
+                      </NavLink>
+                      <NavLink
+                        to="/register"
+                        className={({ isActive }) => (isActive ? "active" : "")}
+                      >
+                        新規登録
+                      </NavLink>
+                    </div>
+                  )
+                )}
+              </div>
             </div>
           </nav>
         </header>
