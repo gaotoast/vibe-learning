@@ -273,14 +273,16 @@ export const getReadingStats = async () => {
       inProgressBooks: 0,
       totalPages: 0,
       readPages: 0,
-    };
-
-    // 書籍データから統計を計算
+    }; // 書籍データから統計を計算
     books.forEach((book) => {
-      stats.totalPages += book.totalPages || 0;
-      stats.readPages += Math.min(book.currentPage || 0, book.totalPages || 0);
+      const totalPages = book.totalPages || 0;
+      const currentPage = book.currentPage || 0;
 
-      if (book.isCompleted) {
+      stats.totalPages += totalPages;
+      stats.readPages += Math.min(currentPage, totalPages);
+
+      // 登録したページ数と読んだページ数が一致している書籍を完読としてカウント
+      if (totalPages > 0 && currentPage >= totalPages) {
         stats.completedBooks += 1;
       } else {
         stats.inProgressBooks += 1;

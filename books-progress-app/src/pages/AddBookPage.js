@@ -5,13 +5,12 @@ import { addBook } from "../services/bookService";
 
 const AddBookPage = () => {
   const navigate = useNavigate();
-
   // フォームの状態
   const [formData, setFormData] = useState({
     title: "",
     author: "",
-    totalPages: 0,
-    currentPage: 0,
+    totalPages: "",
+    currentPage: "",
     memo: "",
   });
 
@@ -23,47 +22,55 @@ const AddBookPage = () => {
 
   // 成功メッセージの状態
   const [success, setSuccess] = useState("");
-
   // フォーム入力変更ハンドラー
   const handleInputChange = (e) => {
     const { name, value } = e.target;
 
-    // 数値型のフィールドの場合は数値に変換
-    const processedValue =
-      name === "totalPages" || name === "currentPage"
-        ? parseInt(value, 10) || 0
-        : value;
+    // 数値型のフィールドの場合は数値に変換（空の文字列の場合は変換しない）
+    let processedValue = value;
+
+    if ((name === "totalPages" || name === "currentPage") && value !== "") {
+      processedValue = parseInt(value, 10);
+    }
 
     setFormData({
       ...formData,
       [name]: processedValue,
     });
   };
-
   // フォーム送信ハンドラー
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // 送信前に値を適切に数値変換
+    const submitData = {
+      ...formData,
+      totalPages:
+        formData.totalPages === "" ? 0 : parseInt(formData.totalPages, 10),
+      currentPage:
+        formData.currentPage === "" ? 0 : parseInt(formData.currentPage, 10),
+    };
+
     // バリデーション
     const newErrors = {};
 
-    if (!formData.title.trim()) {
+    if (!submitData.title.trim()) {
       newErrors.title = "タイトルは必須です";
     }
 
-    if (!formData.author.trim()) {
+    if (!submitData.author.trim()) {
       newErrors.author = "著者名は必須です";
     }
 
-    if (formData.totalPages <= 0) {
+    if (submitData.totalPages <= 0) {
       newErrors.totalPages = "有効なページ数を入力してください";
     }
 
-    if (formData.currentPage < 0) {
+    if (submitData.currentPage < 0) {
       newErrors.currentPage = "現在のページは0以上である必要があります";
     }
 
-    if (formData.currentPage > formData.totalPages) {
+    if (submitData.currentPage > submitData.totalPages) {
       newErrors.currentPage =
         "現在のページは総ページ数を超えることはできません";
     }
@@ -77,10 +84,16 @@ const AddBookPage = () => {
     // エラーをリセット
     setErrors({});
     setIsSubmitting(true);
-
     try {
+      // 送信前に確実に数値に変換したデータを使用
+      const bookData = {
+        ...formData,
+        totalPages: parseInt(formData.totalPages, 10) || 0,
+        currentPage: parseInt(formData.currentPage, 10) || 0,
+      };
+
       // BookServiceを使用して書籍を追加（非同期処理）
-      const result = await addBook(formData);
+      const result = await addBook(bookData);
 
       if (result.success) {
         // 成功メッセージを表示
@@ -90,8 +103,8 @@ const AddBookPage = () => {
         setFormData({
           title: "",
           author: "",
-          totalPages: 0,
-          currentPage: 0,
+          totalPages: "",
+          currentPage: "",
           memo: "",
         });
 
@@ -141,7 +154,6 @@ const AddBookPage = () => {
             />
             {errors.title && <p className="error-text">{errors.title}</p>}
           </div>
-
           <div className="form-group">
             <label htmlFor="author">
               著者 <span className="required">*</span>
@@ -156,8 +168,7 @@ const AddBookPage = () => {
               disabled={isSubmitting}
             />
             {errors.author && <p className="error-text">{errors.author}</p>}
-          </div>
-
+          </div>{" "}
           <div className="form-group">
             <label htmlFor="totalPages">
               総ページ数 <span className="required">*</span>
@@ -169,14 +180,15 @@ const AddBookPage = () => {
               value={formData.totalPages}
               onChange={handleInputChange}
               min="1"
+              step="1"
+              placeholder="ページ数を入力"
               className={errors.totalPages ? "error" : ""}
               disabled={isSubmitting}
             />
             {errors.totalPages && (
               <p className="error-text">{errors.totalPages}</p>
             )}
-          </div>
-
+          </div>{" "}
           <div className="form-group">
             <label htmlFor="currentPage">現在のページ</label>
             <input
@@ -187,6 +199,8 @@ const AddBookPage = () => {
               onChange={handleInputChange}
               min="0"
               max={formData.totalPages}
+              step="1"
+              placeholder="現在のページ数を入力"
               className={errors.currentPage ? "error" : ""}
               disabled={isSubmitting}
             />
@@ -194,7 +208,6 @@ const AddBookPage = () => {
               <p className="error-text">{errors.currentPage}</p>
             )}
           </div>
-
           <div className="form-group">
             <label htmlFor="memo">メモ（任意）</label>
             <textarea
@@ -206,7 +219,6 @@ const AddBookPage = () => {
               disabled={isSubmitting}
             />
           </div>
-
           <div className="form-actions">
             <button type="submit" className="btn" disabled={isSubmitting}>
               {isSubmitting ? "追加中..." : "書籍を追加"}

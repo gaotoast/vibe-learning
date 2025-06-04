@@ -659,6 +659,20 @@ body {
   transition: border-color 0.3s, background-color 0.3s, color 0.3s;
 }
 
+/* 数値入力フィールドのスタイル調整 */
+input[type="number"] {
+  -moz-appearance: textfield; /* Firefox で上下矢印を表示 */
+  appearance: auto; /* デフォルトの数値入力スタイルを保持 */
+}
+
+/* Chrome, Safari, Edge, Opera で上下矢印を明確に表示 */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  opacity: 1;
+  height: 30px;
+  cursor: pointer;
+}
+
 .form-group input.error,
 .form-group textarea.error {
   border-color: #e74c3c;
@@ -1044,4 +1058,77 @@ body {
 .app-title-link:hover {
   color: #ffffff;
   text-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
+}
+
+/* 新しい統計レイアウト */
+.stats-row {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  gap: 1.5rem;
+  margin-top: 2rem;
+  width: 100%;
+}
+
+.stat-column {
+  flex: 1;
+  min-width: 0;
+}
+
+.stat-box {
+  background-color: var(--card-bg-color);
+  border-radius: 12px;
+  box-shadow: var(--card-shadow);
+  padding: 1.5rem;
+  text-align: center;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  transition: transform 0.3s ease;
+}
+
+.stat-box:hover {
+  transform: translateY(-5px);
+}
+
+.stat-title {
+  font-size: 1.2rem;
+  color: var(--subtitle-color);
+  margin-bottom: 1rem;
+  font-weight: 500;
+}
+
+.stat-large-value {
+  font-size: 3rem;
+  font-weight: 700;
+  color: var(--title-color);
+  margin: 0;
+  line-height: 1.2;
+}
+
+.stat-unit {
+  font-size: 1rem;
+  color: var(--subtitle-color);
+  margin-top: 0.5rem;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+  .stats-row {
+    flex-direction: column;
+  }
+
+  .stat-column {
+    margin-bottom: 1.5rem;
+  }
+
+  .stat-box {
+    padding: 1.2rem;
+  }
+
+  .stat-large-value {
+    font-size: 2.5rem;
+  }
 }
