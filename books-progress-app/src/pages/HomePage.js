@@ -191,14 +191,14 @@ const HomePage = () => {
 
     // バリデーション
     const newErrors = {};
-
     if (!formData.title.trim()) {
       newErrors.title = "タイトルは必須です";
     }
 
-    if (!formData.author.trim()) {
-      newErrors.author = "著者名は必須です";
-    }
+    // 著者名の入力は任意に変更
+    // if (!formData.author.trim()) {
+    //   newErrors.author = "著者名は必須です";
+    // }
 
     if (formData.totalPages <= 0) {
       newErrors.totalPages = "有効なページ数を入力してください";
@@ -311,12 +311,9 @@ const HomePage = () => {
             {formErrors.title && (
               <p className="error-text">{formErrors.title}</p>
             )}
-          </div>
-
+          </div>{" "}
           <div className="form-group">
-            <label htmlFor="author">
-              著者 <span className="required">*</span>
-            </label>
+            <label htmlFor="author">著者</label>
             <input
               type="text"
               id="author"
@@ -330,7 +327,6 @@ const HomePage = () => {
               <p className="error-text">{formErrors.author}</p>
             )}
           </div>
-
           <div className="form-group">
             <label htmlFor="totalPages">
               総ページ数 <span className="required">*</span>
@@ -372,7 +368,6 @@ const HomePage = () => {
               <p className="error-text">{formErrors.totalPages}</p>
             )}
           </div>
-
           <div className="form-group">
             <label htmlFor="currentPage">現在のページ</label>
             <div className="progress-input">
@@ -418,7 +413,6 @@ const HomePage = () => {
               <p className="error-text">{formErrors.currentPage}</p>
             )}
           </div>
-
           <div className="form-group">
             <label htmlFor="memo">メモ（任意）</label>
             <textarea
@@ -430,7 +424,6 @@ const HomePage = () => {
               disabled={isSubmitting}
             />
           </div>
-
           <div className="form-actions">
             <button type="submit" className="btn" disabled={isSubmitting}>
               {isSubmitting ? "追加中..." : "書籍を追加"}

@@ -56,14 +56,14 @@ const AddBookPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault(); // バリデーション
     const newErrors = {};
-
     if (!formData.title.trim()) {
       newErrors.title = "タイトルは必須です";
     }
 
-    if (!formData.author.trim()) {
-      newErrors.author = "著者名は必須です";
-    }
+    // 著者名の入力は任意に変更
+    // if (!formData.author.trim()) {
+    //   newErrors.author = "著者名は必須です";
+    // }
 
     // 総ページ数の検証：未入力または0の場合はエラー
     if (formData.totalPages === "" || formData.totalPages === "0") {
@@ -166,11 +166,9 @@ const AddBookPage = () => {
               disabled={isSubmitting}
             />
             {errors.title && <p className="error-text">{errors.title}</p>}
-          </div>
+          </div>{" "}
           <div className="form-group">
-            <label htmlFor="author">
-              著者 <span className="required">*</span>
-            </label>
+            <label htmlFor="author">著者</label>
             <input
               type="text"
               id="author"
