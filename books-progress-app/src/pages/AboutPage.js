@@ -5,46 +5,33 @@ const AboutPage = () => {
   return (
     <div className="about-page">
       <h2 className="page-title">Page Trackerについて</h2>
-      <p className="page-subtitle">あなたの読書体験をより豊かにするアプリ</p>
+      <p className="page-subtitle">読書進捗管理アプリ</p>
 
       <div className="about-content">
         <section className="about-section">
-          <h3>サービス概要</h3>
+          <h3>概要</h3>
           <p>
-            Page Trackerは、読書の進捗を簡単に管理できるアプリケーションです。
-            読んでいる本のページ数を追跡し、読書の習慣を維持するサポートをします。
-            シンプルな操作で、あなたの読書ライフをより充実させます。
+            Page Trackerは読書の進捗を簡単に管理できるアプリです。
+            本のページ数を記録して、読書習慣の継続をサポートします。
           </p>
         </section>
+
         <section className="about-section">
           <h3>主な機能</h3>
           <ul className="feature-list">
             <li>
-              <strong>書籍管理：</strong>
-              読んでいる本の一覧を簡単に管理できます
+              <strong>書籍管理</strong> - 読んでいる本を一覧で管理
             </li>
             <li>
-              <strong>進捗追跡：</strong>
-              現在のページ数を記録し、進捗率を視覚的に確認できます
+              <strong>進捗追跡</strong> - ページ数記録と進捗バーで確認
             </li>
             <li>
-              <strong>統計情報：</strong>
-              読書の傾向を分析し、グラフで表示します
+              <strong>読書統計</strong> - 読了冊数・ページ数を表示
             </li>
             <li>
-              <strong>ダークモード：</strong>
-              目に優しい表示モードを提供します
-            </li>
+              <strong>ダークモード</strong> - 目に優しい表示切替
+            </li>{" "}
           </ul>
-        </section>{" "}
-        <section className="about-section">
-          <h3>使い方</h3>
-          <ol className="steps-list">
-            <li>アカウントを作成またはログインします</li>
-            <li>「書籍リスト」ページで新しい書籍を追加します</li>
-            <li>読み進めるごとにページ数を更新します</li>
-            <li>「統計」ページで読書の進捗を確認します</li>
-          </ol>
         </section>
       </div>
     </div>
