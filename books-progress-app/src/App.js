@@ -10,6 +10,7 @@ import {
 import { FiSun, FiMoon, FiUser } from "react-icons/fi";
 import "./App.css";
 import "./components/AuthStyles.css";
+import OfflineIndicator from "./components/OfflineIndicator";
 
 // ページコンポーネントをインポート
 import HomePage from "./pages/HomePage";
@@ -102,8 +103,8 @@ function App() {
 
   return (
     <Router>
-      <div className="App">
-        {" "}
+      <div className="App app-shell">
+        <OfflineIndicator />
         <header className="header">
           <nav className="nav">
             <div className="nav-brand">
